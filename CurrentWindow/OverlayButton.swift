@@ -51,28 +51,3 @@ class OverlayButton: NSView {
         button.frame.origin = CGPoint(x: x, y: y)
     }
 }
-
-    /*
-    override func draw(_ dirtyRect: NSRect) {
-        
-     // For a green border around the focused element
-        /*
-        NSColor.green.setStroke()
-        let path = NSBezierPath(rect: bounds.insetBy(dx: 1, dy: 1))
-        path.lineWidth = 2
-        path.stroke()
-        */
-        
-        let circlePath = NSBezierPath(
-            ovalIn: NSRect(
-                x: bounds.width - circleSize,
-                y: bounds.height - circleSize,
-                width: circleSize,
-                height: circleSize
-            ))
-        
-        NSColor.green.setFill()
-        circlePath.fill()
-        
-    }
-     */
