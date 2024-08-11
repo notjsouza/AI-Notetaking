@@ -17,8 +17,8 @@
 		D049F5FB2C3D36BD0088DE3F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F5FA2C3D36BD0088DE3F /* AppDelegate.swift */; };
 		D049F5FE2C3DF8A80088DE3F /* AccessibilityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F5FD2C3DF8A80088DE3F /* AccessibilityManager.swift */; };
 		D049F6022C50627B0088DE3F /* WindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F6012C50627A0088DE3F /* WindowManager.swift */; };
-		D049F6212C522EA40088DE3F /* BorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F6202C522EA40088DE3F /* BorderView.swift */; };
-		D049F6232C5DF3890088DE3F /* HoverableText.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F6222C5DF3890088DE3F /* HoverableText.swift */; };
+		D049F6212C522EA40088DE3F /* OverlayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F6202C522EA40088DE3F /* OverlayButton.swift */; };
+		D049F6252C6828810088DE3F /* WordOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F6242C6828810088DE3F /* WordOverlayView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,8 +54,8 @@
 		D049F5FC2C3DAE340088DE3F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D049F5FD2C3DF8A80088DE3F /* AccessibilityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityManager.swift; sourceTree = "<group>"; };
 		D049F6012C50627A0088DE3F /* WindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowManager.swift; sourceTree = "<group>"; };
-		D049F6202C522EA40088DE3F /* BorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BorderView.swift; sourceTree = "<group>"; };
-		D049F6222C5DF3890088DE3F /* HoverableText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverableText.swift; sourceTree = "<group>"; };
+		D049F6202C522EA40088DE3F /* OverlayButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayButton.swift; sourceTree = "<group>"; };
+		D049F6242C6828810088DE3F /* WordOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordOverlayView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,8 +115,8 @@
 				D049F5FA2C3D36BD0088DE3F /* AppDelegate.swift */,
 				D049F5FD2C3DF8A80088DE3F /* AccessibilityManager.swift */,
 				D049F6012C50627A0088DE3F /* WindowManager.swift */,
-				D049F6202C522EA40088DE3F /* BorderView.swift */,
-				D049F6222C5DF3890088DE3F /* HoverableText.swift */,
+				D049F6202C522EA40088DE3F /* OverlayButton.swift */,
+				D049F6242C6828810088DE3F /* WordOverlayView.swift */,
 			);
 			path = CurrentWindow;
 			sourceTree = "<group>";
@@ -280,8 +280,8 @@
 				D049F5FB2C3D36BD0088DE3F /* AppDelegate.swift in Sources */,
 				D049F5D22C3D36750088DE3F /* ContentView.swift in Sources */,
 				D049F5D02C3D36750088DE3F /* CurrentWindowApp.swift in Sources */,
-				D049F6232C5DF3890088DE3F /* HoverableText.swift in Sources */,
-				D049F6212C522EA40088DE3F /* BorderView.swift in Sources */,
+				D049F6212C522EA40088DE3F /* OverlayButton.swift in Sources */,
+				D049F6252C6828810088DE3F /* WordOverlayView.swift in Sources */,
 				D049F6022C50627B0088DE3F /* WindowManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -1,5 +1,5 @@
 //
-//  BorderView.swift
+//  OverlayButton.swift
 //  CurrentWindow
 //
 //  Created by Justin Souza on 7/24/24.
@@ -8,11 +8,10 @@
 import Foundation
 import Cocoa
 
-class BorderView: NSView {
+class OverlayButton: NSView {
     
     var button: NSButton!
     let buttonSize: CGFloat = 30
-    //var role: String?
     
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -52,7 +51,7 @@ class BorderView: NSView {
         button.frame.origin = CGPoint(x: x, y: y)
     }
 }
-    
+
     /*
     override func draw(_ dirtyRect: NSRect) {
         
@@ -74,24 +73,6 @@ class BorderView: NSView {
         
         NSColor.green.setFill()
         circlePath.fill()
-        
-        /*
-        
-        // to print the role of the element in the overlay as well
-        if let role = role {
-            
-            let attributes: [NSAttributedString.Key: Any] = [
-                .foregroundColor: NSColor.white,
-                .backgroundColor: NSColor.black.withAlphaComponent(0.7),
-                .font: NSFont.systemFont(ofSize: 12)
-            ]
-            
-            let attributedString = NSAttributedString(string: role, attributes: attributes)
-            attributedString.draw(at: NSPoint(x: 5, y: self.bounds.height - 20))
-            
-        }
-         
-         */
         
     }
      */

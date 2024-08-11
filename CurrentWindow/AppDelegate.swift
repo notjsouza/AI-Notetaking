@@ -9,47 +9,30 @@ import Cocoa
 
 class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
     
-    //@Published var curAppName: String = ""
     @Published var activeTextField: String = ""
     
-    //@Published var focusedElementFrame: CGRect?
-    //@Published var focusedElementRole: String?
+    private var applicationSwitchObserver: NSObjectProtocol?
+    private var axObserver: AXObserver?
     
-    //var windowObserver: NSObjectProtocol?
-    //var focusObserver: AXObserver?
-    
-    private var timer: Timer?
-
     deinit {
-        timer?.invalidate()
+        
+        removeObservers()
+        
     }
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        
         AccessibilityManager.shared.appDelegate = self
+        startObservingApplicationSwitch()
+        observeCurrentApplication()
+        checkCurrentTextFieldValue()
         
-        /*
-        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            AccessibilityManager.shared.getFocusedWindowElements()
-        }
-        
-        updateCurrentApp()
-        setUpObserver()
-        setUpFocusObserver()
-         */
-        startTimer()
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
-        /*
-        if let observer = windowObserver {
-            NSWorkspace.shared.notificationCenter.removeObserver(observer)
-        }
         
-        if let observer = focusObserver {
-            CFRunLoopRemoveSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(observer), .defaultMode)
-        }
-        */
-        timer?.invalidate()
+        removeObservers()
+        
     }
     
     func checkCurrentTextFieldValue() {
@@ -59,153 +42,144 @@ class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         let axApp = AXUIElementCreateApplication(pid)
         
         var focusedElement: CFTypeRef?
-        let res = AXUIElementCopyAttributeValue(axApp, kAXFocusedUIElementAttribute as CFString, &focusedElement)
+        let res = AXUIElementCopyAttributeValue(axApp, 
+                                                kAXFocusedUIElementAttribute as CFString,
+                                                &focusedElement
+        )
         
         if res == .success, let element = focusedElement as! AXUIElement? {
-            var value: AnyObject?
+            
+            var value: CFTypeRef?
             AXUIElementCopyAttributeValue(
                 element,
                 kAXValueAttribute as CFString,
                 &value
             )
-            activeTextField = (value as? String) ?? ""
-            WindowManager.shared.createOverlayWindow(with: self)
-            //handleFocusChange(element: element)
+            
+            let newValue = (value as? String) ?? ""
+            
+            if newValue != activeTextField {
+                
+                activeTextField = newValue
+                print(activeTextField)
+                
+                if let wordFrames = AccessibilityManager.shared.getWordFrames() {
+                        
+                    WindowManager.shared.createOverlayWindow(wordFrames: wordFrames)
+                        
+                }
+                
+            }
+            
         }
         
     }
     
-    func startTimer() {
+    func startObservingApplicationSwitch() {
         
-        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
-            self?.checkCurrentTextFieldValue()
-        }
-        
-    }
-    
-    /*
-    func updateCurrentApp() {
-        let app = NSWorkspace.shared.frontmostApplication
-        curAppName = app?.localizedName ?? ""
-    }
-    
-    func setUpObserver() {
-        windowObserver = NSWorkspace.shared.notificationCenter.addObserver(
+        applicationSwitchObserver = NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didActivateApplicationNotification,
             object: nil,
             queue: .main
-        ) { [weak self] notification in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self?.updateCurrentApp()
-                AccessibilityManager.shared.getFocusedWindowElements()
-            }
+        ) { [weak self] _ in
+        
+            self?.observeCurrentApplication()
+            
         }
+        
     }
     
-    func setUpFocusObserver() {
+    func observeCurrentApplication() {
         
         guard let app = NSWorkspace.shared.frontmostApplication else { return }
         let pid = app.processIdentifier
-        
-        var observer: AXObserver?
-        let error = AXObserverCreate(pid, { (observer, element, notification, refcon) in
-            guard let appDelegate = refcon?.load(as: AppDelegate.self) else { return }
-            appDelegate.handleFocusChange(element: element)
-        }, &observer)
-        
-        guard error == .success, let observer = observer else { return }
-        
-        focusObserver = observer
-        
         let axApp = AXUIElementCreateApplication(pid)
-        AXObserverAddNotification(observer, axApp, kAXFocusedUIElementChangedNotification as CFString, nil)
         
-        CFRunLoopAddSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(observer), .defaultMode)
+        if let existingObserver = self.axObserver {
+            
+            CFRunLoopRemoveSource(CFRunLoopGetCurrent(),
+                                  AXObserverGetRunLoopSource(existingObserver),
+                                  .defaultMode
+            )
+            self.axObserver = nil
+            
+        }
+        
+        var axObserver: AXObserver?
+        let callback: AXObserverCallback = { (observer, element, notification, refcon) in
+            
+            NotificationCenter.default.post(name: .axNotificationRecieved, object: nil)
+            
+        }
+        
+        let createObserverResult = AXObserverCreate(pid,
+                                                    callback,
+                                                    &axObserver
+        )
+        
+        if createObserverResult == .success, let axObserver = axObserver {
+            
+            self.axObserver = axObserver
+            AXObserverAddNotification(axObserver,
+                                      axApp,
+                                      kAXFocusedUIElementChangedNotification as CFString,
+                                      nil
+            )
+            
+            AXObserverAddNotification(axObserver, 
+                                      axApp,
+                                      kAXValueChangedNotification as CFString,
+                                      nil
+            )
+            
+            CFRunLoopAddSource(CFRunLoopGetCurrent(),
+                               AXObserverGetRunLoopSource(axObserver),
+                               .defaultMode
+            )
+            
+            NotificationCenter.default.addObserver(self,
+                                                   selector: #selector(handleAXNotification),
+                                                   name: .axNotificationRecieved,
+                                                   object: nil
+            )
+            
+        }
+        
+    }
+
+    @objc func handleAXNotification() {
+        
+        checkCurrentTextFieldValue()
         
     }
     
-    func handleFocusChange(element: AXUIElement) {
+    func removeObservers() {
         
-        updateFocusedElementInfo(element: element)
-        
-        var value: CFTypeRef?
-        AXUIElementCopyAttributeValue(element, kAXValueAttribute as CFString, &value)
-        
-        let newText = (value as? String) ?? ""
-        
-        if newText != activeTextField {
-            activeTextField = newText
-            print("Text changed, new value: ")
-            print(activeTextField)
+        if let observer = applicationSwitchObserver {
+            
+            NSWorkspace.shared.notificationCenter.removeObserver(observer)
+            applicationSwitchObserver = nil
+            
         }
         
-        updateBorderWindow()
-        
-        /*
+        NotificationCenter.default.removeObserver(self,
+                                                  name: .axNotificationRecieved,
+                                                  object: nil
+        )
          
-        var role: CFTypeRef?
-        AXUIElementCopyAttributeValue(element, kAXRoleAttribute as CFString, &role)
-         
-        if let roleString = role as? String,
-           roleString == "AXTextField" || roleString == "AXTextArea" {
+        if let axObserver = axObserver {
             
-            var value: CFTypeRef?
-            AXUIElementCopyAttributeValue(element, kAXValueAttribute as CFString, &value)
+            CFRunLoopRemoveSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(axObserver), .defaultMode)
+            self.axObserver = nil
             
-            let newText = (value as? String) ?? ""
-            
-            if newText != activeTextField {
-                activeTextField = newText
-                print("Text changed, new value: ")
-                print(activeTextField)
-            }
-            
-        } else {
-            
-            if !activeTextField.isEmpty {
-                print("Text field lost focus, last value: \(activeTextField)")
-            }
-            
-            activeTextField = ""
         }
-        */
+                
     }
     
-    func updateFocusedElementInfo(element: AXUIElement) {
-        
-        var role: CFTypeRef?
-        var position: CFTypeRef?
-        var size: CFTypeRef?
-        
-        AXUIElementCopyAttributeValue(element, kAXRoleAttribute as CFString, &role)
-        AXUIElementCopyAttributeValue(element, kAXPositionAttribute as CFString, &position)
-        AXUIElementCopyAttributeValue(element, kAXSizeAttribute as CFString, &size)
-        
-        focusedElementRole = role as? String
-        
-        if let positionValue = position as! AXValue?,
-           let sizeValue = size as! AXValue? {
-            
-            var point = CGPoint.zero
-            var sizeRect = CGSize.zero
-            
-            AXValueGetValue(positionValue, .cgPoint, &point)
-            AXValueGetValue(sizeValue, .cgSize, &sizeRect)
-            
-            focusedElementFrame = CGRect(origin: point, size: sizeRect)
-            
-        } else {
-            
-            focusedElementFrame = nil
-            
-        }
-    }
+}
+
+extension Notification.Name {
     
-    func updateBorderWindow() {
-        if let frame = focusedElementFrame {
-            WindowManager.shared.createOverlayWindow(at: frame.origin, with: frame.size, with: self)
-        }
-    }
-    */
+    static let axNotificationRecieved = Notification.Name("AXNotificationRecieved")
     
 }

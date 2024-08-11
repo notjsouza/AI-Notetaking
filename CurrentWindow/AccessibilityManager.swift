@@ -15,7 +15,6 @@ class AccessibilityManager {
     weak var appDelegate: AppDelegate?
     
     func getMainWindowFrame() -> CGRect? {
-        //func getFocusedWindowElements() {
         
         // Defines app as the focused application
         guard let app = NSWorkspace.shared.frontmostApplication else { return nil }
@@ -41,6 +40,7 @@ class AccessibilityManager {
             kAXPositionAttribute as CFString,
             &position
         )
+        
         AXUIElementCopyAttributeValue(
             window,
             kAXSizeAttribute as CFString,
@@ -58,6 +58,7 @@ class AccessibilityManager {
             .cgPoint,
             &cgPoint
         )
+        
         AXValueGetValue(
             sizeValue,
             .cgSize,
@@ -66,122 +67,68 @@ class AccessibilityManager {
         
         return CGRect(origin: cgPoint, size: cgSize)
         
-        /*
-         // Attempts to assign focusedWindow the value of the focused application
-         var focusedWindow: CFTypeRef?
-         let windowResult = AXUIElementCopyAttributeValue(
-         appElement,
-         kAXMainWindowAttribute as CFString,
-         &focusedWindow
-         )
-         */
-        /*
-         // Creates an AXUIElement object window with the value of focusedWindow if the process is successful, exits if unsuccessful
-         guard windowResult == .success,
-         let window = focusedWindow as! AXUIElement? else {
-         print("Failed to get window")
-         return
-         }
-         */
+    }
+    
+    func getWordFrames() -> [(String, CGRect)]? {
         
-        /*
-         // Creates the overlay for the application
-         if let position = getPosition(element: window, attribute: kAXPositionAttribute),
-         let size = getSize(element: window, attribute: kAXSizeAttribute) {
-         if let appDelegate = self.appDelegate {
-         WindowManager.shared.createOverlayWindow(at: position, with: size, with: appDelegate)
-         }
-         }
-         */
+        // Defines app as the focused application
+        guard let app = NSWorkspace.shared.frontmostApplication else { return nil }
         
-        // Recursively runs through all the elements within the active application
-        //getAllElements(element: window, level: 0)
+        // Grabs the PID of app, and creates an accessibility object using the pid of the focused application
+        let pid = app.processIdentifier
+        let appElement = AXUIElementCreateApplication(pid)
+        
+        var focusedElement: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(
+            appElement,
+            kAXFocusedUIElementAttribute as CFString,
+            &focusedElement
+        ) == .success,
+              let element = focusedElement as! AXUIElement? else { return nil }
+            
+        var valueRef: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(
+            element,
+            kAXValueAttribute as CFString,
+            &valueRef
+        ) == .success,
+              let stringValue = valueRef as? String else { return nil }
+        
+        var positionRef: CFTypeRef?
+        var sizeRef: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(element, kAXPositionAttribute as CFString, &positionRef) == .success,
+              AXUIElementCopyAttributeValue(element, kAXSizeAttribute as CFString, &sizeRef) == .success,
+              let positionValue = positionRef as! AXValue?,
+              let sizeValue = sizeRef as! AXValue? else { return nil }
+        
+        var position = CGPoint.zero
+        var size = CGSize.zero
+        
+        AXValueGetValue(positionValue, .cgPoint, &position)
+        AXValueGetValue(sizeValue, .cgSize, &size)
+        
+        let rect = CGRect(origin: position, size: size)
+        
+        let words = stringValue.split(separator: " ").map(String.init)
+        let totalLength = CGFloat(stringValue.count)
+        var wordFrames: [(String, CGRect)] = []
+        
+        var currentOffset: CGFloat = 0
+        for word in words {
+            
+            let wordLength = CGFloat(word.count)
+            let startX = rect.origin.x + (currentOffset / totalLength) * rect.width
+            let wordWidth = (wordLength / totalLength) * rect.width
+            
+            let wordFrame = CGRect(x: startX, y: rect.origin.y, width: wordWidth, height: rect.height)
+            wordFrames.append((word, wordFrame))
+                        
+            currentOffset += wordLength + 1
+            
+        }
+        
+        return wordFrames
         
     }
-    /*
-     private func getAllElements(element: AXUIElement, level: Int) {
-     
-     if let role = getAttributeInfo(element: element, attribute: kAXRoleAttribute) {
-     if role == "AXTextArea" || role == "AXTextField" { //== "AXButton" {
-     if let position = getPosition(element: element, attribute: kAXPositionAttribute) {
-     if let size = getSize(element: element, attribute: kAXSizeAttribute) {
-     if size.width > 0 && size.height > 0 {
-     if let appDelegate = self.appDelegate {
-     WindowManager.shared.createOverlayWindow(at: position, with: size, with: appDelegate)
-     }
-     }
-     }
-     }
-     }
-     }
-     
-     if let children = getChildren(element: element, attribute: kAXChildrenAttribute) {
-     for child in children {
-     getAllElements(element: child, level: level + 1)
-     }
-     }
-     
-     }
-     
-     /*
-      Returns the attribute info (role, title, value) as a String
-      */
-     private func getAttributeInfo(element: AXUIElement, attribute: String) -> String? {
-     
-     var valuePtr: CFTypeRef?
-     let res = AXUIElementCopyAttributeValue(element, attribute as CFString, &valuePtr)
-     
-     if res == .success, let value = valuePtr {
-     return value as? String
-     } else {
-     return nil
-     }
-     
-     }
-     
-     private func getPosition(element: AXUIElement, attribute: String) -> NSPoint? {
-     
-     var valuePtr: CFTypeRef?
-     let res = AXUIElementCopyAttributeValue(element, attribute as CFString, &valuePtr)
-     
-     if res == .success, let value = valuePtr {
-     var point = NSPoint()
-     if AXValueGetValue(value as! AXValue, .cgPoint, &point) {
-     return point
-     }
-     }
-     
-     return nil
-     
-     }
-     
-     private func getSize(element: AXUIElement, attribute: String) -> CGSize? {
-     var valuePtr: CFTypeRef?
-     let res = AXUIElementCopyAttributeValue(element, attribute as CFString, &valuePtr)
-     
-     if res == .success, let value = valuePtr {
-     var size = CGSize()
-     if AXValueGetValue(value as! AXValue, .cgSize, &size) {
-     return size
-     }
-     }
-     
-     return nil
-     
-     }
-     
-     private func getChildren(element: AXUIElement, attribute: String) -> [AXUIElement]? {
-     
-     var valuePtr: CFTypeRef?
-     let res = AXUIElementCopyAttributeValue(element, attribute as CFString, &valuePtr)
-     
-     if res == .success, let value = valuePtr {
-     return value as? [AXUIElement]
-     } else {
-     return nil
-     }
-     
-     }
-     
-     */
+    
 }

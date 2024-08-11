@@ -11,141 +11,60 @@ import SwiftUI
 class WindowManager: ObservableObject {
     
     static let shared = WindowManager()
-    //private var overlayWindow: NSWindow?
-    private var overlayWindow: NSPanel?
+    private var wordOverlays: [NSWindow] = []
     
-    func createOverlayWindow(with appDelegate: AppDelegate) {
+    func createOverlayWindow(wordFrames: [(String, CGRect)]) {
         
-        guard let frame = AccessibilityManager.shared.getMainWindowFrame() else { return }
+        wordOverlays.forEach { $0.close() }
+        wordOverlays.removeAll()
         
-        if let existingWindow = overlayWindow {
-            existingWindow.setFrame(frame, display: true)
-        } else {
+        guard let screen = NSScreen.main else { return }
+        
+        for (word, frame) in wordFrames {
+            
+            let screenFrame = screen.convertToScreenCoordinates(frame)
+            
+            let menuBarHeight = screen.frame.height - screen.visibleFrame.height
+            let adjustedFrame = CGRect(x: screenFrame.origin.x,
+                                       y: screen.frame.height - screenFrame.origin.y - screenFrame.height - menuBarHeight,
+                                       width: screenFrame.width,
+                                       height: screenFrame.height
+                                )
+            
             let panel = NSPanel(
-                contentRect: frame,
+                contentRect: adjustedFrame,
                 styleMask: [.borderless, .nonactivatingPanel],
                 backing: .buffered,
                 defer: false
             )
             
             panel.isOpaque = false
-            panel.backgroundColor = .clear
+            panel.backgroundColor = NSColor.red.withAlphaComponent(0.3)
             panel.hasShadow = false
             panel.level = .screenSaver
-            panel.ignoresMouseEvents = true
+            panel.ignoresMouseEvents = false
             
-            let contentView = NSHostingView(rootView: OverlayContentView(appDelegate: appDelegate))
+            let contentView = NSHostingView(rootView: WordOverlayView(word: word))
             panel.contentView = contentView
             
             panel.orderFront(nil)
-            overlayWindow = panel
+            wordOverlays.append(panel)
             
         }
-        
-        /*
-        
-        // Removes existing overlay window, if one exists
-        //overlayWindow?.close()
-        
-        // Defines the active monitor size, and grabs the position of the active element
-        let screenFrame = NSScreen.main?.frame ?? .zero
-        let windowPosition = NSPoint(x: position.x, y: screenFrame.height - position.y - size.height)
-        
-        // Creates the overlay window with the value of windowPosition
-        let window = NSWindow(
-            contentRect: NSRect(origin: windowPosition, size: size),
-            styleMask: [.borderless, .nonactivatingPanel],
-            backing: .buffered,
-            defer: false
-        )
-        
-        window.isOpaque = false
-        window.backgroundColor = .clear
-        window.hasShadow = false
-        window.level = .screenSaver
-        window.ignoresMouseEvents = false
-        
-        let contentView = NSHostingView(rootView: OverlayContentView(appDelegate: appDelegate))
-        window.contentView = contentView
-        
-        window.orderFront(nil)
-        overlayWindow = window
-        */
     }
 }
 
-
+extension NSScreen {
     
-    /*
-    private var borderWindows: [NSPanel] = []
-    
-    init() {}
-    
-     
-    func createNewWindow(at position: NSPoint, with size: CGSize, with appDelegate: AppDelegate) {
+    func convertToScreenCoordinates(_ rect: CGRect) -> CGRect {
         
-        for window in borderWindows {
-            window.orderOut(nil)
-        }
-        borderWindows.removeAll()
-        
-        /*
-        guard let screen = NSScreen.main else { return }
-        let screenFrame = screen.visibleFrame
-        
-        let maxX = screenFrame.maxX - size.width
-        let maxY = screenFrame.maxY - size.height
-        
-        let windowX = min(max(position.x, screenFrame.minX), maxX)
-        let windowY = min(max(screenFrame.maxY - position.y - size.height, screenFrame.minY), maxY)
-        
-        let window = NSPanel(
-            contentRect: NSRect(origin: NSPoint(x: windowX, y: windowY), size: size),
-            styleMask: [.nonactivatingPanel],
-            backing: .buffered,
-            defer: false
-        )
-        
-        window.isOpaque = false
-        window.backgroundColor = .clear
-        window.hasShadow = false
-        window.level = .screenSaver
-        window.ignoresMouseEvents = true
-        
-        let borderView = BorderView(frame: NSRect(origin: .zero, size: size))
-        window.contentView = borderView
-        
-        window.orderFront(nil)
-        
-        borderWindows.append(window)
-        */
-         
-        
-        let screenFrame = NSScreen.main?.frame ?? .zero
-        let windowPosition = NSPoint(x: position.x, y: screenFrame.height - position.y - size.height)
-        
-        let window = NSPanel(
-            contentRect: NSRect(origin: windowPosition, size: size),
-            styleMask: [.nonactivatingPanel],
-            backing: .buffered,
-            defer: false
-        )
-        
-        window.isOpaque = false
-        window.backgroundColor = .clear
-        window.hasShadow = false
-        window.level = .screenSaver
-        window.ignoresMouseEvents = true
-        
-        let borderView = BorderView(frame: NSRect(origin: .zero, size: size))
-        //borderView.role = appDelegate.focusedElementRole
-        window.contentView = borderView
-        
-        window.orderFront(nil)
-        
-        borderWindows.append(window)
-         
+        let screenHeight = self.frame.height
+        return CGRect(x: rect.origin.x,
+                      y: screenHeight - rect.origin.y - rect.height,
+                      width: rect.width,
+                      height: rect.height
+                )
         
     }
+    
 }
-     */
