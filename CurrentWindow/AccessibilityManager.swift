@@ -14,6 +14,12 @@ class AccessibilityManager {
     static let shared = AccessibilityManager()
     weak var appDelegate: AppDelegate?
     
+    func isAccessibilityEnabled() -> Bool {
+        
+        return AXIsProcessTrusted()
+        
+    }
+    
     func getMainWindowFrame() -> CGRect? {
         
         // Defines app as the focused application
@@ -69,7 +75,7 @@ class AccessibilityManager {
         
     }
     
-    func getWordFrames() -> [(String, CGRect)]? {
+    func getFocusedTextFieldInfo() -> (String, CGRect, CGRect)? {
         
         // Defines app as the focused application
         guard let app = NSWorkspace.shared.frontmostApplication else { return nil }
@@ -107,27 +113,47 @@ class AccessibilityManager {
         AXValueGetValue(positionValue, .cgPoint, &position)
         AXValueGetValue(sizeValue, .cgSize, &size)
         
-        let rect = CGRect(origin: position, size: size)
+        let elementBounds = CGRect(origin: position, size: size)
         
-        let words = stringValue.split(separator: " ").map(String.init)
-        let totalLength = CGFloat(stringValue.count)
-        var wordFrames: [(String, CGRect)] = []
+        var windowRef: CFTypeRef?
+        AXUIElementCopyAttributeValue(
+            appElement,
+            kAXWindowAttribute as CFString,
+            &windowRef
+        )
         
-        var currentOffset: CGFloat = 0
-        for word in words {
+        var windowPosition = CGPoint.zero
+        var windowSize = CGSize.zero
+        
+        if let window = windowRef as! AXUIElement? {
             
-            let wordLength = CGFloat(word.count)
-            let startX = rect.origin.x + (currentOffset / totalLength) * rect.width
-            let wordWidth = (wordLength / totalLength) * rect.width
+            var windowPositionRef: CFTypeRef?
+            var windowSizeRef: CFTypeRef?
             
-            let wordFrame = CGRect(x: startX, y: rect.origin.y, width: wordWidth, height: rect.height)
-            wordFrames.append((word, wordFrame))
-                        
-            currentOffset += wordLength + 1
+            AXUIElementCopyAttributeValue(
+                window,
+                kAXPositionAttribute as CFString,
+                &windowPositionRef
+            )
+            AXUIElementCopyAttributeValue(
+                window,
+                kAXSizeAttribute as CFString,
+                &windowSizeRef
+            )
+            
+            if let posValue = windowPositionRef as! AXValue?,
+               let sizeValue = windowSizeRef as! AXValue? {
+                
+                AXValueGetValue(posValue, .cgPoint, &windowPosition)
+                AXValueGetValue(sizeValue, .cgSize, &windowSize)
+                
+            }
             
         }
         
-        return wordFrames
+        let windowFrame = CGRect(origin: windowPosition, size: windowSize)
+        
+        return (stringValue, elementBounds, windowFrame)
         
     }
     

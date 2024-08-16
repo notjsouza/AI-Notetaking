@@ -22,7 +22,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         
-        AccessibilityManager.shared.appDelegate = self
+        if !AccessibilityManager.shared.isAccessibilityEnabled() {
+            
+            showAccessibilityAlert()
+            
+        }
+        
+        //AccessibilityManager.shared.appDelegate = self
         startObservingApplicationSwitch()
         observeCurrentApplication()
         checkCurrentTextFieldValue()
@@ -32,44 +38,28 @@ class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
     func applicationWillTerminate(_ aNotification: Notification) {
         
         removeObservers()
+        WindowManager.shared.removeAllOverlays()
         
     }
     
     func checkCurrentTextFieldValue() {
         
-        guard let app = NSWorkspace.shared.frontmostApplication else { return }
-        let pid = app.processIdentifier
-        let axApp = AXUIElementCreateApplication(pid)
+        guard let (newValue, elementFrame, _) = AccessibilityManager.shared.getFocusedTextFieldInfo() else { return }
         
-        var focusedElement: CFTypeRef?
-        let res = AXUIElementCopyAttributeValue(axApp, 
-                                                kAXFocusedUIElementAttribute as CFString,
-                                                &focusedElement
-        )
-        
-        if res == .success, let element = focusedElement as! AXUIElement? {
+        if newValue != activeTextField {
+                
+            activeTextField = newValue
+            print(activeTextField)
+                
+            let tempTextField = NSTextField(frame: elementFrame)
+            tempTextField.stringValue = activeTextField
+                
+            print("elementFrame: \(elementFrame)")
             
-            var value: CFTypeRef?
-            AXUIElementCopyAttributeValue(
-                element,
-                kAXValueAttribute as CFString,
-                &value
+            WindowManager.shared.createOverlayWindows(
+                for: tempTextField, 
+                elementFrame: elementFrame
             )
-            
-            let newValue = (value as? String) ?? ""
-            
-            if newValue != activeTextField {
-                
-                activeTextField = newValue
-                print(activeTextField)
-                
-                if let wordFrames = AccessibilityManager.shared.getWordFrames() {
-                        
-                    WindowManager.shared.createOverlayWindow(wordFrames: wordFrames)
-                        
-                }
-                
-            }
             
         }
         
@@ -174,6 +164,23 @@ class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
             
         }
                 
+    }
+    
+    func showAccessibilityAlert() {
+        
+        let alert = NSAlert()
+        alert.messageText = "Accessibility Permission Required"
+        alert.informativeText = "This app requires accessibility permissions to function properly. Please enable it in System Preferences > Security & Privacy > Privacy > Accessibility."
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "Open System Preferences")
+        alert.addButton(withTitle: "Cancel")
+        
+        if alert.runModal() == .alertFirstButtonReturn {
+            
+            NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Library/PreferencePanes/Security.prefPane"))
+            
+        }
+        
     }
     
 }

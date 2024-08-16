@@ -15,21 +15,22 @@ struct WordOverlayView: View {
     var body: some View {
         
         Text(word)
-            .padding(4)
-            .background(isHovered ? Color.green.opacity(0.2) : Color.clear)
+            .padding(2)
+            .background(Color.green.opacity(0.2))//isHovered ? Color.green.opacity(0.2) : Color.clear)
             .foregroundColor(Color.black)
+            .font(.system(size: 12))
             .onHover { hovering in
                 
                 withAnimation(.easeInOut(duration: 0.2)) {
                     
                     isHovered = hovering
+                    print("Hovering over \(word)")
                     
                 }
             }
             .onTapGesture {
                 
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString(word, forType: .string)
+                print("Text Pressed")
                 
             }
         
