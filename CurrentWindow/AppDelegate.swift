@@ -56,10 +56,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
                 
             print("elementFrame: \(elementFrame)")
             
+            WindowManager.shared.createOverlayWindows()
+            
+            /*
             WindowManager.shared.createOverlayWindows(
                 for: tempTextField, 
                 elementFrame: elementFrame
             )
+             */
             
         }
         

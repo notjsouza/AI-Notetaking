@@ -7,90 +7,105 @@
 
 import Cocoa
 import SwiftUI
+import Vision
 
 class WindowManager: ObservableObject {
     
     static let shared = WindowManager()
     private var wordOverlays: [NSWindow] = []
     
-    func createOverlayWindows(for textField: NSTextField, elementFrame: CGRect) {
+    
+    func captureScreenshot() -> CGImage? {
         
-        removeAllOverlays()
-        
-        let text = textField.stringValue
-        let words = text.components(separatedBy: .whitespacesAndNewlines)
-        
-        guard let screen = NSScreen.main else { return }
-        
-        var horizontalPadding: CGFloat = 5
-        var verticalPadding: CGFloat = 2
-        
-        for (index, word) in words.enumerated() {
+        if let screen = NSScreen.main {
             
-            if var frame = frameForWord(at: index, in: textField) {
+            let cgImage = CGWindowListCreateImage(
+                .zero,
+                .optionOnScreenOnly,
+                kCGNullWindowID,
+                [.boundsIgnoreFraming]
+            )
+            return cgImage
+            
+        }
+        
+        return nil
+        
+    }
+    
+    func performTextRecognition(on image: CGImage, completion: @escaping ([VNRecognizedTextObservation]) -> Void) {
+        
+        let req = VNRecognizeTextRequest { req, error in
+            
+            guard let observations = req.results as? [VNRecognizedTextObservation] else {
                 
-                frame.origin.x += horizontalPadding
-                frame.origin.y += verticalPadding
+                completion([])
+                return
                 
-                let screenFrame = CGRect(
-                    x: elementFrame.minX + frame.minX,
-                    y: screen.frame.maxY - (elementFrame.minY + frame.minY + frame.height),
-                    width: frame.width + 10,
-                    height: frame.height + 4
+            }
+            
+            completion(observations)
+            
+        }
+        
+        let handler = VNImageRequestHandler(cgImage: image, options: [:])
+        try? handler.perform([req])
+        
+    }
+    
+    func createOverlayWindows() {
+        
+        guard let screenshot = captureScreenshot() else { return }
+        
+        performTextRecognition(on: screenshot) { observations in
+            
+            self.removeAllOverlays()
+            
+            for observation in observations {
+                
+                let boundingBox = observation.boundingBox
+                let screenBounds = NSScreen.main!.frame
+                
+                let rect = CGRect(
+                    x: boundingBox.minX * screenBounds.width,
+                    y: ((boundingBox.maxY) * screenBounds.height) - 10,
+                    width: boundingBox.width * screenBounds.width,
+                    height: boundingBox.height * screenBounds.height
                 )
                 
-                print("Adjusted frame for '\(word)': \(screenFrame)")
-                
-                let panel = NSPanel(
-                    contentRect: screenFrame,
-                    styleMask: [.borderless, .nonactivatingPanel],
-                    backing: .buffered,
-                    defer: false
-                )
-                
-                panel.isOpaque = false
-                panel.backgroundColor = NSColor.green.withAlphaComponent(0.3)//.clear
-                panel.hasShadow = false
-                panel.level = .screenSaver
-                panel.ignoresMouseEvents = false
-                
-                let contentView = NSHostingView(rootView: WordOverlayView(word: word))
-                panel.contentView = contentView
-                
-                panel.orderFront(nil)
-                wordOverlays.append(panel)
+                if let topCandidate = observation.topCandidates(1).first {
+                    
+                    self.createOverlayForWord(topCandidate.string, in: rect)
+                    
+                }
                 
             }
             
         }
         
     }
-    
-    private func frameForWord(at index: Int, in textField: NSTextField) -> NSRect? {
         
-        let text = textField.stringValue
-        let words = text.components(separatedBy: .whitespacesAndNewlines)
-        guard index < words.count else { return nil }
-        
-        let wordToFind = words[index]
-        let precedingWords = words[0..<index].joined(separator: " ")
-        let startIndex = text.index(text.startIndex, offsetBy: precedingWords.count + (index > 0 ? 1 : 0))
-        let endIndex = text.index(startIndex, offsetBy: wordToFind.count)
-        
-        let range = NSRange(startIndex..<endIndex, in: text)
-        
-        let layoutManager = NSLayoutManager()
-        let textContainer = NSTextContainer(size: textField.bounds.size)
-        let textStorage = NSTextStorage(string: text)
-        
-        layoutManager.addTextContainer(textContainer)
-        textStorage.addLayoutManager(layoutManager)
-        
-        var glyphRange = NSRange()
-        layoutManager.characterRange(forGlyphRange: range, actualGlyphRange: &glyphRange)
-        
-        return layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
-        
+    func createOverlayForWord(_ word: String, in rect: CGRect) {
+                
+        let panel = NSPanel(
+            contentRect: rect,
+            styleMask: [.borderless, .nonactivatingPanel],
+            backing: .buffered,
+            defer: false
+        )
+                
+        panel.isOpaque = false
+        panel.backgroundColor = NSColor.green.withAlphaComponent(0.3)//.clear
+        panel.hasShadow = false
+        panel.level = .screenSaver
+        panel.ignoresMouseEvents = false
+                
+        let contentView = NSHostingView(rootView: WordOverlayView(word: word))
+        panel.contentView = contentView
+                
+        panel.orderFront(nil)
+        wordOverlays.append(panel)
+                
     }
     
     func removeAllOverlays() {
@@ -99,60 +114,5 @@ class WindowManager: ObservableObject {
         wordOverlays.removeAll()
         
     }
-    
-    /*
-    func createOverlayWindow(wordFrames: [(String, CGRect)]) {
-        
-        wordOverlays.forEach { $0.close() }
-        wordOverlays.removeAll()
-        
-        guard let screen = NSScreen.main else { return }
-        
-        for (word, frame) in wordFrames {
-            
-            let screenFrame = screen.convertToScreenCoordinates(frame)
-            
-            let adjustedFrame = CGRect(x: screenFrame.origin.x,
-                                       y: screenFrame.origin.y,
-                                       width: screenFrame.width,
-                                       height: screenFrame.height
-                                )
-            
-            let panel = NSPanel(
-                contentRect: adjustedFrame,
-                styleMask: [.borderless, .nonactivatingPanel],
-                backing: .buffered,
-                defer: false
-            )
-            
-            panel.isOpaque = false
-            panel.backgroundColor = NSColor.green.withAlphaComponent(0.1)
-            panel.hasShadow = false
-            panel.level = .screenSaver
-            panel.ignoresMouseEvents = false
-            
-            let contentView = NSHostingView(rootView: WordOverlayView(word: word))
-            panel.contentView = contentView
-            
-            panel.orderFront(nil)
-            wordOverlays.append(panel)
-            
-        }
-    }
-}
-
-extension NSScreen {
-    
-    func convertToScreenCoordinates(_ rect: CGRect) -> CGRect {
-        
-        return CGRect(x: rect.origin.x,
-                      y: self.frame.height - rect.origin.y - rect.height,
-                      width: rect.width,
-                      height: rect.height
-                )
-        
-    }
- 
-     */
      
 }
