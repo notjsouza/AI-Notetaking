@@ -20,6 +20,7 @@
 		D049F6212C522EA40088DE3F /* OverlayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F6202C522EA40088DE3F /* OverlayButton.swift */; };
 		D049F6252C6828810088DE3F /* WordOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F6242C6828810088DE3F /* WordOverlayView.swift */; };
 		D049F62B2C757A420088DE3F /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F62A2C757A420088DE3F /* OverlayView.swift */; };
+		D049F62D2C76E8970088DE3F /* OverlayModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F62C2C76E8970088DE3F /* OverlayModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +59,7 @@
 		D049F6202C522EA40088DE3F /* OverlayButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayButton.swift; sourceTree = "<group>"; };
 		D049F6242C6828810088DE3F /* WordOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordOverlayView.swift; sourceTree = "<group>"; };
 		D049F62A2C757A420088DE3F /* OverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayView.swift; sourceTree = "<group>"; };
+		D049F62C2C76E8970088DE3F /* OverlayModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -119,6 +121,7 @@
 				D049F6012C50627A0088DE3F /* WindowManager.swift */,
 				D049F6202C522EA40088DE3F /* OverlayButton.swift */,
 				D049F6242C6828810088DE3F /* WordOverlayView.swift */,
+				D049F62C2C76E8970088DE3F /* OverlayModel.swift */,
 				D049F62A2C757A420088DE3F /* OverlayView.swift */,
 			);
 			path = CurrentWindow;
@@ -280,6 +283,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D049F62B2C757A420088DE3F /* OverlayView.swift in Sources */,
+				D049F62D2C76E8970088DE3F /* OverlayModel.swift in Sources */,
 				D049F5FE2C3DF8A80088DE3F /* AccessibilityManager.swift in Sources */,
 				D049F5FB2C3D36BD0088DE3F /* AppDelegate.swift in Sources */,
 				D049F5D22C3D36750088DE3F /* ContentView.swift in Sources */,

@@ -16,25 +16,24 @@ struct WordOverlayView: View {
     var body: some View {
         
         Text(word)
-            //.padding(4)
             .background(Color.green.opacity(0.2))//isHovered ? Color.green.opacity(0.2) : Color.clear)
             .foregroundColor(Color.black)
             .font(.system(size: 14))
             .onHover { hovering in
-                
                 withAnimation(.easeInOut(duration: 0.2)) {
-                    
                     isHovered = hovering
-                    print("Hovering over \(word)")
-                    
+                    if hovering {
+                        OverlayModel.shared.fetchNote(for: word)
+                    }
                 }
             }
             .onTapGesture {
-                
-                print("Text Pressed")
-                
+                // OPEN NOTE IN ANOTHER WINDOW
             }
-        
+            .popover(isPresented: .constant(isHovered)) {
+                Text(OverlayModel.shared.note)
+                    .padding()
+            }
     }
     
 }

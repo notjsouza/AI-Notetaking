@@ -104,7 +104,6 @@ class WindowManager: ObservableObject {
                         height: bounds.height
                     )
                     
-                    print(word, adjustedBounds)
                     createOverlayWindows(for: word, bounds: adjustedBounds)
                     
                 } else {
