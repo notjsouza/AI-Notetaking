@@ -30,43 +30,42 @@ class AccessibilityManager {
         let appElement = AXUIElementCreateApplication(pid)
         
         var windowRef: CFTypeRef?
-        AXUIElementCopyAttributeValue(
+        let res = AXUIElementCopyAttributeValue(
             appElement,
             kAXMainWindowAttribute as CFString,
             &windowRef
         )
+        guard res == .success, let windowElement = windowRef as! AXUIElement? else { return nil }
         
-        guard let window = windowRef as! AXUIElement? else { return nil }
+        var positionRef: CFTypeRef?
+        var sizeRef: CFTypeRef?
         
-        var position: AnyObject?
-        var size: AnyObject?
-        
-        AXUIElementCopyAttributeValue(
-            window,
+        let positionRes = AXUIElementCopyAttributeValue(
+            windowElement,
             kAXPositionAttribute as CFString,
-            &position
+            &positionRef
         )
         
-        AXUIElementCopyAttributeValue(
-            window,
+        let sizeRes = AXUIElementCopyAttributeValue(
+            windowElement,
             kAXSizeAttribute as CFString,
-            &size
+            &sizeRef
         )
         
-        guard let positionValue = position as! AXValue?,
-              let sizeValue = size as! AXValue? else { return nil }
+        guard positionRes == .success, let position = positionRef as! AXValue? else { return nil }
+        guard sizeRes == .success, let size = sizeRef as! AXValue? else { return nil }
         
         var cgPoint = CGPoint.zero
         var cgSize = CGSize.zero
         
         AXValueGetValue(
-            positionValue,
+            position,
             .cgPoint,
             &cgPoint
         )
         
         AXValueGetValue(
-            sizeValue,
+            size,
             .cgSize,
             &cgSize
         )
@@ -75,7 +74,7 @@ class AccessibilityManager {
         
     }
     
-    func getFocusedTextFieldInfo() -> (String, CGRect, CGRect)? {
+    func getTextFieldData() -> (String, AXUIElement, CGRect)? {
         
         // Defines app as the focused application
         guard let app = NSWorkspace.shared.frontmostApplication else { return nil }
@@ -85,75 +84,39 @@ class AccessibilityManager {
         let appElement = AXUIElementCreateApplication(pid)
         
         var focusedElement: CFTypeRef?
-        guard AXUIElementCopyAttributeValue(
+        let res = AXUIElementCopyAttributeValue(
             appElement,
             kAXFocusedUIElementAttribute as CFString,
             &focusedElement
-        ) == .success,
-              let element = focusedElement as! AXUIElement? else { return nil }
-            
+        )
+        guard res == .success, let element = focusedElement as! AXUIElement? else { return nil }
+        
         var valueRef: CFTypeRef?
-        guard AXUIElementCopyAttributeValue(
+        let valueRes = AXUIElementCopyAttributeValue(
             element,
             kAXValueAttribute as CFString,
             &valueRef
-        ) == .success,
-              let stringValue = valueRef as? String else { return nil }
+        )
+        guard valueRes == .success, let value = valueRef as? String else { return nil }
         
+        
+        // CHECK HERE IF ANY PROBLEMS
         var positionRef: CFTypeRef?
         var sizeRef: CFTypeRef?
         guard AXUIElementCopyAttributeValue(element, kAXPositionAttribute as CFString, &positionRef) == .success,
-              AXUIElementCopyAttributeValue(element, kAXSizeAttribute as CFString, &sizeRef) == .success,
-              let positionValue = positionRef as! AXValue?,
-              let sizeValue = sizeRef as! AXValue? else { return nil }
-        
+            AXUIElementCopyAttributeValue(element, kAXSizeAttribute as CFString, &sizeRef) == .success,
+            let positionValue = positionRef as! AXValue?,
+            let sizeValue = sizeRef as! AXValue? else { return nil }
+                
         var position = CGPoint.zero
         var size = CGSize.zero
-        
+                
         AXValueGetValue(positionValue, .cgPoint, &position)
         AXValueGetValue(sizeValue, .cgSize, &size)
-        
+                
         let elementBounds = CGRect(origin: position, size: size)
         
-        var windowRef: CFTypeRef?
-        AXUIElementCopyAttributeValue(
-            appElement,
-            kAXWindowAttribute as CFString,
-            &windowRef
-        )
-        
-        var windowPosition = CGPoint.zero
-        var windowSize = CGSize.zero
-        
-        if let window = windowRef as! AXUIElement? {
-            
-            var windowPositionRef: CFTypeRef?
-            var windowSizeRef: CFTypeRef?
-            
-            AXUIElementCopyAttributeValue(
-                window,
-                kAXPositionAttribute as CFString,
-                &windowPositionRef
-            )
-            AXUIElementCopyAttributeValue(
-                window,
-                kAXSizeAttribute as CFString,
-                &windowSizeRef
-            )
-            
-            if let posValue = windowPositionRef as! AXValue?,
-               let sizeValue = windowSizeRef as! AXValue? {
-                
-                AXValueGetValue(posValue, .cgPoint, &windowPosition)
-                AXValueGetValue(sizeValue, .cgSize, &windowSize)
-                
-            }
-            
-        }
-        
-        let windowFrame = CGRect(origin: windowPosition, size: windowSize)
-        
-        return (stringValue, elementBounds, windowFrame)
+        return (value, element, elementBounds)
         
     }
     

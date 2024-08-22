@@ -10,158 +10,70 @@ import Cocoa
 class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
     
     @Published var activeTextField: String = ""
+    @Published var bounds: CGRect?
+    //@Published var element: AXUIElement?
     
-    private var applicationSwitchObserver: NSObjectProtocol?
-    private var axObserver: AXObserver?
+    private var timer: Timer?
+    private var isBorderDrawn = false
     
     deinit {
         
-        removeObservers()
+        timer?.invalidate()
         
     }
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         
-        if !AccessibilityManager.shared.isAccessibilityEnabled() {
-            
-            showAccessibilityAlert()
-            
-        }
-        
-        //AccessibilityManager.shared.appDelegate = self
-        startObservingApplicationSwitch()
-        observeCurrentApplication()
-        checkCurrentTextFieldValue()
+        AccessibilityManager.shared.appDelegate = self
+        startTimer()
         
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
         
-        removeObservers()
-        WindowManager.shared.removeAllOverlays()
+        timer?.invalidate()
+        WindowManager.shared.deleteTextOverlay()
+        WindowManager.shared.deleteBorderOverlay()
+        
+    }
+    
+    func startTimer() {
+        
+        timer = Timer.scheduledTimer(
+            withTimeInterval: 0.1,
+            repeats: true
+        ) { [weak self] _ in
+        
+            self?.checkCurrentTextFieldValue()
+            
+        }
         
     }
     
     func checkCurrentTextFieldValue() {
         
-        guard let (newValue, elementFrame, _) = AccessibilityManager.shared.getFocusedTextFieldInfo() else { return }
+        guard let (curValue, curElement, curBounds) = AccessibilityManager.shared.getTextFieldData() else { return }
         
-        if newValue != activeTextField {
+        if curValue != activeTextField {
                 
-            activeTextField = newValue
+            activeTextField = curValue
             print(activeTextField)
-                
-            let tempTextField = NSTextField(frame: elementFrame)
-            tempTextField.stringValue = activeTextField
-                
-            print("elementFrame: \(elementFrame)")
             
-            WindowManager.shared.createOverlayWindows(
-                for: tempTextField, 
-                elementFrame: elementFrame
-            )
-            
-        }
-        
-    }
-    
-    func startObservingApplicationSwitch() {
-        
-        applicationSwitchObserver = NSWorkspace.shared.notificationCenter.addObserver(
-            forName: NSWorkspace.didActivateApplicationNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-        
-            self?.observeCurrentApplication()
-            
-        }
-        
-    }
-    
-    func observeCurrentApplication() {
-        
-        guard let app = NSWorkspace.shared.frontmostApplication else { return }
-        let pid = app.processIdentifier
-        let axApp = AXUIElementCreateApplication(pid)
-        
-        if let existingObserver = self.axObserver {
-            
-            CFRunLoopRemoveSource(CFRunLoopGetCurrent(),
-                                  AXObserverGetRunLoopSource(existingObserver),
-                                  .defaultMode
-            )
-            self.axObserver = nil
-            
-        }
-        
-        var axObserver: AXObserver?
-        let callback: AXObserverCallback = { (observer, element, notification, refcon) in
-            
-            NotificationCenter.default.post(name: .axNotificationRecieved, object: nil)
-            
-        }
-        
-        let createObserverResult = AXObserverCreate(pid,
-                                                    callback,
-                                                    &axObserver
-        )
-        
-        if createObserverResult == .success, let axObserver = axObserver {
-            
-            self.axObserver = axObserver
-            AXObserverAddNotification(axObserver,
-                                      axApp,
-                                      kAXFocusedUIElementChangedNotification as CFString,
-                                      nil
-            )
-            
-            AXObserverAddNotification(axObserver, 
-                                      axApp,
-                                      kAXValueChangedNotification as CFString,
-                                      nil
-            )
-            
-            CFRunLoopAddSource(CFRunLoopGetCurrent(),
-                               AXObserverGetRunLoopSource(axObserver),
-                               .defaultMode
-            )
-            
-            NotificationCenter.default.addObserver(self,
-                                                   selector: #selector(handleAXNotification),
-                                                   name: .axNotificationRecieved,
-                                                   object: nil
-            )
-            
-        }
-        
-    }
+            WindowManager.shared.deleteTextOverlay()
+            WindowManager.shared.createOverlay(text: activeTextField, element: curElement)
 
-    @objc func handleAXNotification() {
-        
-        checkCurrentTextFieldValue()
-        
-    }
-    
-    func removeObservers() {
-        
-        if let observer = applicationSwitchObserver {
-            
-            NSWorkspace.shared.notificationCenter.removeObserver(observer)
-            applicationSwitchObserver = nil
-            
         }
         
-        NotificationCenter.default.removeObserver(self,
-                                                  name: .axNotificationRecieved,
-                                                  object: nil
-        )
-         
-        if let axObserver = axObserver {
+        if curBounds != bounds {
             
-            CFRunLoopRemoveSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(axObserver), .defaultMode)
-            self.axObserver = nil
+            // ADJUST THIS FOR THE PORTION THAT IS IN VIEW
+            // in the case where there's a scrollbar it's typically going offscreen
             
+            bounds = curBounds
+            //print(curBounds)
+
+            WindowManager.shared.createBorderOverlay(for: curBounds)
+    
         }
                 
     }
@@ -182,11 +94,5 @@ class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         }
         
     }
-    
-}
-
-extension Notification.Name {
-    
-    static let axNotificationRecieved = Notification.Name("AXNotificationRecieved")
     
 }

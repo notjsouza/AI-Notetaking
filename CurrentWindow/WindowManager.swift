@@ -13,52 +13,105 @@ class WindowManager: ObservableObject {
     static let shared = WindowManager()
     private var wordOverlays: [NSWindow] = []
     
-    func createOverlayWindows(for textField: NSTextField, elementFrame: CGRect) {
-        
-        removeAllOverlays()
-        
-        let text = textField.stringValue
-        let words = text.components(separatedBy: .whitespacesAndNewlines)
+    //Check later
+    private var borderWindow: NSWindow?
+    
+    func createBorderOverlay(for frame: CGRect) {
         
         guard let screen = NSScreen.main else { return }
         
-        var horizontalPadding: CGFloat = 5
-        var verticalPadding: CGFloat = 2
+        let adjustedY = screen.frame.height - frame.origin.y - frame.height
+        let adjustedFrame = CGRect(
+            x: frame.origin.x,
+            y: adjustedY,
+            width: frame.width,
+            height: frame.height
+        )
         
-        for (index, word) in words.enumerated() {
+        if borderWindow == nil {
+            borderWindow = NSWindow(
+                contentRect: adjustedFrame,
+                styleMask: [.borderless],
+                backing: .buffered,
+                defer: false
+            )
             
-            if var frame = frameForWord(at: index, in: textField) {
+            borderWindow?.isOpaque = false
+            borderWindow?.backgroundColor = .clear
+            borderWindow?.level = .floating
+            borderWindow?.hasShadow = false
+            borderWindow?.ignoresMouseEvents = true
+            
+            let borderView = OverlayView(frame: NSRect(origin: .zero, size: frame.size))
+            borderWindow?.contentView = borderView
+            
+        } else {
+            
+            borderWindow?.setFrame(adjustedFrame, display: true)
+            
+        }
+        
+        borderWindow?.orderFront(nil)
+        
+    }
+    
+    func createOverlay(text: String, element: AXUIElement) {
+        
+        let words = text.components(separatedBy: .whitespacesAndNewlines)
+        print(words)
+        var curIndex = 0
+        
+        for word in words {
+            
+            if word.isEmpty {
                 
-                frame.origin.x += horizontalPadding
-                frame.origin.y += verticalPadding
+                curIndex += 1
+                continue
                 
-                let screenFrame = CGRect(
-                    x: elementFrame.minX + frame.minX,
-                    y: screen.frame.maxY - (elementFrame.minY + frame.minY + frame.height),
-                    width: frame.width + 10,
-                    height: frame.height + 4
-                )
+            }
+            
+            let range = NSRange(location: curIndex, length: word.count)
+            curIndex += word.count + 1
+            
+            var cfRange = CFRangeMake(range.location, range.length)
+            guard let rangeValue = AXValueCreate(.cfRange, &cfRange) else { continue }
+            
+            var boundsRef: CFTypeRef?
+            let res = AXUIElementCopyParameterizedAttributeValue(
+                element,
+                kAXBoundsForRangeParameterizedAttribute as CFString,
+                rangeValue,
+                &boundsRef
+            )
+            
+            
+            if res == .success, let boundsValue = boundsRef as! AXValue? {
                 
-                print("Adjusted frame for '\(word)': \(screenFrame)")
-                
-                let panel = NSPanel(
-                    contentRect: screenFrame,
-                    styleMask: [.borderless, .nonactivatingPanel],
-                    backing: .buffered,
-                    defer: false
-                )
-                
-                panel.isOpaque = false
-                panel.backgroundColor = NSColor.green.withAlphaComponent(0.3)//.clear
-                panel.hasShadow = false
-                panel.level = .screenSaver
-                panel.ignoresMouseEvents = false
-                
-                let contentView = NSHostingView(rootView: WordOverlayView(word: word))
-                panel.contentView = contentView
-                
-                panel.orderFront(nil)
-                wordOverlays.append(panel)
+                var bounds = CGRect.zero
+                if AXValueGetValue(
+                    boundsValue,
+                    .cgRect,
+                    &bounds
+                ) {
+                   
+                    guard let screen = NSScreen.main else { return }
+                    
+                    let adjustedY = screen.frame.height - bounds.origin.y - bounds.height
+                    let adjustedBounds = CGRect(
+                        x: bounds.origin.x,
+                        y: adjustedY,
+                        width: bounds.width,
+                        height: bounds.height
+                    )
+                    
+                    print(word, adjustedBounds)
+                    createOverlayWindows(for: word, bounds: adjustedBounds)
+                    
+                } else {
+                    
+                    print("failed to get bounds for \(word)")
+                    
+                }
                 
             }
             
@@ -66,93 +119,47 @@ class WindowManager: ObservableObject {
         
     }
     
-    private func frameForWord(at index: Int, in textField: NSTextField) -> NSRect? {
+    func createOverlayWindows(for word: String, bounds: CGRect) {
         
-        let text = textField.stringValue
-        let words = text.components(separatedBy: .whitespacesAndNewlines)
-        guard index < words.count else { return nil }
+        let panel = NSPanel(
+            contentRect: bounds,
+            styleMask: [.borderless, .nonactivatingPanel],
+            backing: .buffered,
+            defer: false
+        )
         
-        let wordToFind = words[index]
-        let precedingWords = words[0..<index].joined(separator: " ")
-        let startIndex = text.index(text.startIndex, offsetBy: precedingWords.count + (index > 0 ? 1 : 0))
-        let endIndex = text.index(startIndex, offsetBy: wordToFind.count)
+        panel.isOpaque = false
+        panel.backgroundColor = NSColor.green.withAlphaComponent(0.3)//.clear
+        panel.hasShadow = false
+        panel.level = .floating
+        panel.ignoresMouseEvents = false
         
-        let range = NSRange(startIndex..<endIndex, in: text)
+        let contentView = NSHostingView(rootView: WordOverlayView(word: word, frame: bounds))
+        panel.contentView = contentView
         
-        let layoutManager = NSLayoutManager()
-        let textContainer = NSTextContainer(size: textField.bounds.size)
-        let textStorage = NSTextStorage(string: text)
-        
-        layoutManager.addTextContainer(textContainer)
-        textStorage.addLayoutManager(layoutManager)
-        
-        var glyphRange = NSRange()
-        layoutManager.characterRange(forGlyphRange: range, actualGlyphRange: &glyphRange)
-        
-        return layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
+        panel.orderFront(nil)
+        wordOverlays.append(panel)
         
     }
     
-    func removeAllOverlays() {
+    func deleteBorderOverlay() {
+        
+        borderWindow?.close()
+        
+    }
+    
+    func deleteTextOverlay() {
         
         wordOverlays.forEach { $0.close() }
         wordOverlays.removeAll()
         
     }
     
-    /*
-    func createOverlayWindow(wordFrames: [(String, CGRect)]) {
+    func deleteAll() {
         
-        wordOverlays.forEach { $0.close() }
-        wordOverlays.removeAll()
-        
-        guard let screen = NSScreen.main else { return }
-        
-        for (word, frame) in wordFrames {
-            
-            let screenFrame = screen.convertToScreenCoordinates(frame)
-            
-            let adjustedFrame = CGRect(x: screenFrame.origin.x,
-                                       y: screenFrame.origin.y,
-                                       width: screenFrame.width,
-                                       height: screenFrame.height
-                                )
-            
-            let panel = NSPanel(
-                contentRect: adjustedFrame,
-                styleMask: [.borderless, .nonactivatingPanel],
-                backing: .buffered,
-                defer: false
-            )
-            
-            panel.isOpaque = false
-            panel.backgroundColor = NSColor.green.withAlphaComponent(0.1)
-            panel.hasShadow = false
-            panel.level = .screenSaver
-            panel.ignoresMouseEvents = false
-            
-            let contentView = NSHostingView(rootView: WordOverlayView(word: word))
-            panel.contentView = contentView
-            
-            panel.orderFront(nil)
-            wordOverlays.append(panel)
-            
-        }
-    }
-}
-
-extension NSScreen {
-    
-    func convertToScreenCoordinates(_ rect: CGRect) -> CGRect {
-        
-        return CGRect(x: rect.origin.x,
-                      y: self.frame.height - rect.origin.y - rect.height,
-                      width: rect.width,
-                      height: rect.height
-                )
+        deleteBorderOverlay()
+        deleteTextOverlay()
         
     }
- 
-     */
      
 }
