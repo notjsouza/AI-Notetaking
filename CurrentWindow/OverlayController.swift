@@ -215,7 +215,6 @@ public class OverlayController: ObservableObject {
         
         fetchNote(for: word)
         let suggestions: [Note] = notes
-        print(suggestions)
         
         let adjustedBounds = CGRect(
             x: bounds.minX,

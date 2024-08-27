@@ -45,9 +45,8 @@ struct SuggestionView: View {
             
             ForEach(Array(suggestions.enumerated()), id: \.offset) { index, suggestion in
                 Button(action: {
-                    
-                    //print("Selected: \(suggestion.title)")
-                    //print(suggestion.content)
+                    print("Selected: \(suggestion.title)")
+                    print(suggestion.content)
                 }) {
                     Text(suggestion.title)
                         .foregroundColor(.blue)
