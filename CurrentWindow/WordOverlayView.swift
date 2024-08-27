@@ -11,29 +11,30 @@ struct WordOverlayView: View {
     
     let word: String
     let frame: CGRect
-    @State private var isHovered = false
+    @State var isHovered = false
+    
+    @StateObject var windowManager = WindowManager()
     
     var body: some View {
-        
-        Text(word)
-            .background(Color.green.opacity(0.2))//isHovered ? Color.green.opacity(0.2) : Color.clear)
-            .foregroundColor(Color.black)
-            .font(.system(size: 14))
-            .onHover { hovering in
-                withAnimation(.easeInOut(duration: 0.2)) {
+        ZStack {
+            Color.yellow.opacity(0.1)
+            Text(word)
+                .background(isHovered ? Color.green.opacity(0.2) : Color.clear)
+                .foregroundColor(Color.clear)
+                .font(.system(size: 14))
+                .onHover { hovering in
                     isHovered = hovering
-                    if hovering {
-                        OverlayModel.shared.fetchNote(for: word)
-                    }
                 }
+            
+            if isHovered {
+                SuggestionView(suggestions: ["Suggestion 1", "Suggestion 2"], onDismiss: { isHovered = false })
+                    .frame(width: 200, height: 150)
+                    .background(Color.white)
+                    .cornerRadius(10)
+                    .shadow(radius: 5)
+                    .offset(x: 0, y: frame.height - 100)
             }
-            .onTapGesture {
-                // OPEN NOTE IN ANOTHER WINDOW
-            }
-            .popover(isPresented: .constant(isHovered)) {
-                Text(OverlayModel.shared.note)
-                    .padding()
-            }
+        }
+        .frame(width: frame.width, height: frame.height)
     }
-    
 }

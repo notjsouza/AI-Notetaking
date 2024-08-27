@@ -8,19 +8,15 @@
 
 /* Begin PBXBuildFile section */
 		D049F5D02C3D36750088DE3F /* CurrentWindowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F5CF2C3D36750088DE3F /* CurrentWindowApp.swift */; };
-		D049F5D22C3D36750088DE3F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F5D12C3D36750088DE3F /* ContentView.swift */; };
 		D049F5D42C3D36770088DE3F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D049F5D32C3D36770088DE3F /* Assets.xcassets */; };
 		D049F5D72C3D36770088DE3F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D049F5D62C3D36770088DE3F /* Preview Assets.xcassets */; };
 		D049F5E22C3D36770088DE3F /* CurrentWindowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F5E12C3D36770088DE3F /* CurrentWindowTests.swift */; };
 		D049F5EC2C3D36770088DE3F /* CurrentWindowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F5EB2C3D36770088DE3F /* CurrentWindowUITests.swift */; };
 		D049F5EE2C3D36770088DE3F /* CurrentWindowUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F5ED2C3D36770088DE3F /* CurrentWindowUITestsLaunchTests.swift */; };
 		D049F5FB2C3D36BD0088DE3F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F5FA2C3D36BD0088DE3F /* AppDelegate.swift */; };
-		D049F5FE2C3DF8A80088DE3F /* AccessibilityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F5FD2C3DF8A80088DE3F /* AccessibilityManager.swift */; };
-		D049F6022C50627B0088DE3F /* WindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F6012C50627A0088DE3F /* WindowManager.swift */; };
-		D049F6212C522EA40088DE3F /* OverlayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F6202C522EA40088DE3F /* OverlayButton.swift */; };
-		D049F6252C6828810088DE3F /* WordOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F6242C6828810088DE3F /* WordOverlayView.swift */; };
-		D049F62B2C757A420088DE3F /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F62A2C757A420088DE3F /* OverlayView.swift */; };
 		D049F62D2C76E8970088DE3F /* OverlayModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F62C2C76E8970088DE3F /* OverlayModel.swift */; };
+		D0FBDA3F2C7C3A2E002C5A76 /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FBDA3E2C7C3A2E002C5A76 /* OverlayView.swift */; };
+		D0FBDA412C7C3AB1002C5A76 /* OverlayController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FBDA402C7C3AB1002C5A76 /* OverlayController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,7 +39,6 @@
 /* Begin PBXFileReference section */
 		D049F5CC2C3D36750088DE3F /* CurrentWindow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CurrentWindow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D049F5CF2C3D36750088DE3F /* CurrentWindowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentWindowApp.swift; sourceTree = "<group>"; };
-		D049F5D12C3D36750088DE3F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D049F5D32C3D36770088DE3F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D049F5D62C3D36770088DE3F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		D049F5D82C3D36770088DE3F /* CurrentWindow.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CurrentWindow.entitlements; sourceTree = "<group>"; };
@@ -54,12 +49,9 @@
 		D049F5ED2C3D36770088DE3F /* CurrentWindowUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentWindowUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		D049F5FA2C3D36BD0088DE3F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D049F5FC2C3DAE340088DE3F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		D049F5FD2C3DF8A80088DE3F /* AccessibilityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityManager.swift; sourceTree = "<group>"; };
-		D049F6012C50627A0088DE3F /* WindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowManager.swift; sourceTree = "<group>"; };
-		D049F6202C522EA40088DE3F /* OverlayButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayButton.swift; sourceTree = "<group>"; };
-		D049F6242C6828810088DE3F /* WordOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordOverlayView.swift; sourceTree = "<group>"; };
-		D049F62A2C757A420088DE3F /* OverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayView.swift; sourceTree = "<group>"; };
 		D049F62C2C76E8970088DE3F /* OverlayModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayModel.swift; sourceTree = "<group>"; };
+		D0FBDA3E2C7C3A2E002C5A76 /* OverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OverlayView.swift; path = ../OverlayView.swift; sourceTree = "<group>"; };
+		D0FBDA402C7C3AB1002C5A76 /* OverlayController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,19 +102,15 @@
 		D049F5CE2C3D36750088DE3F /* CurrentWindow */ = {
 			isa = PBXGroup;
 			children = (
-				D049F5FC2C3DAE340088DE3F /* Info.plist */,
 				D049F5CF2C3D36750088DE3F /* CurrentWindowApp.swift */,
-				D049F5D12C3D36750088DE3F /* ContentView.swift */,
+				D049F5FC2C3DAE340088DE3F /* Info.plist */,
 				D049F5D32C3D36770088DE3F /* Assets.xcassets */,
 				D049F5D82C3D36770088DE3F /* CurrentWindow.entitlements */,
 				D049F5D52C3D36770088DE3F /* Preview Content */,
 				D049F5FA2C3D36BD0088DE3F /* AppDelegate.swift */,
-				D049F5FD2C3DF8A80088DE3F /* AccessibilityManager.swift */,
-				D049F6012C50627A0088DE3F /* WindowManager.swift */,
-				D049F6202C522EA40088DE3F /* OverlayButton.swift */,
-				D049F6242C6828810088DE3F /* WordOverlayView.swift */,
 				D049F62C2C76E8970088DE3F /* OverlayModel.swift */,
-				D049F62A2C757A420088DE3F /* OverlayView.swift */,
+				D0FBDA3E2C7C3A2E002C5A76 /* OverlayView.swift */,
+				D0FBDA402C7C3AB1002C5A76 /* OverlayController.swift */,
 			);
 			path = CurrentWindow;
 			sourceTree = "<group>";
@@ -282,15 +270,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D049F62B2C757A420088DE3F /* OverlayView.swift in Sources */,
 				D049F62D2C76E8970088DE3F /* OverlayModel.swift in Sources */,
-				D049F5FE2C3DF8A80088DE3F /* AccessibilityManager.swift in Sources */,
+				D0FBDA412C7C3AB1002C5A76 /* OverlayController.swift in Sources */,
+				D0FBDA3F2C7C3A2E002C5A76 /* OverlayView.swift in Sources */,
 				D049F5FB2C3D36BD0088DE3F /* AppDelegate.swift in Sources */,
-				D049F5D22C3D36750088DE3F /* ContentView.swift in Sources */,
 				D049F5D02C3D36750088DE3F /* CurrentWindowApp.swift in Sources */,
-				D049F6212C522EA40088DE3F /* OverlayButton.swift in Sources */,
-				D049F6252C6828810088DE3F /* WordOverlayView.swift in Sources */,
-				D049F6022C50627B0088DE3F /* WindowManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,8 +9,8 @@ import SwiftUI
 
 @main
 struct CurrentWindowApp: App {
-    
-    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
+    @NSApplicationDelegateAdaptor (AppDelegate.self) var appDelegate
     
     var body: some Scene {
         Settings {
