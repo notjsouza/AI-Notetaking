@@ -298,8 +298,8 @@
             filePath = "CurrentWindow/OverlayController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "282"
-            endingLineNumber = "282"
+            startingLineNumber = "288"
+            endingLineNumber = "288"
             landmarkName = "fetchNote(for:)"
             landmarkType = "7">
             <Locations>
@@ -346,8 +346,8 @@
             filePath = "CurrentWindow/OverlayController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "283"
-            endingLineNumber = "283"
+            startingLineNumber = "289"
+            endingLineNumber = "289"
             landmarkName = "fetchNote(for:)"
             landmarkType = "7">
             <Locations>
@@ -380,70 +380,6 @@
                   startingLineNumber = "283"
                   endingLineNumber = "283"
                   offsetFromSymbolStart = "1780">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "4C2A7226-C33F-4C06-B5B8-CB441A6D62CB"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "CurrentWindow/OverlayController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "217"
-            endingLineNumber = "217"
-            landmarkName = "createSuggestionWindow(word:bounds:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "ECB82E12-4FA7-4A63-B8BE-4C007B36101C"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "CurrentWindow/OverlayController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "218"
-            endingLineNumber = "218"
-            landmarkName = "createSuggestionWindow(word:bounds:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "ECB82E12-4FA7-4A63-B8BE-4C007B36101C - c05c985d1c3db651"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CurrentWindow.OverlayController.createSuggestionWindow(word: Swift.String, bounds: __C.CGRect) -&gt; ()"
-                  moduleName = "CurrentWindow"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/Documents/CurrentWindow/CurrentWindow/OverlayController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "217"
-                  endingLineNumber = "217"
-                  offsetFromSymbolStart = "380">
-               </Location>
-               <Location
-                  uuid = "ECB82E12-4FA7-4A63-B8BE-4C007B36101C - c05c985d1c3db651"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CurrentWindow.OverlayController.createSuggestionWindow(word: Swift.String, bounds: __C.CGRect) -&gt; ()"
-                  moduleName = "CurrentWindow"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/Documents/CurrentWindow/CurrentWindow/OverlayController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "217"
-                  endingLineNumber = "217"
-                  offsetFromSymbolStart = "228">
                </Location>
             </Locations>
          </BreakpointContent>

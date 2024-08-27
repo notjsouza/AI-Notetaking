@@ -189,61 +189,67 @@ public class OverlayController: ObservableObject {
     
     func createOverlayWindows(for word: String, bounds: CGRect) {
         
-        let panel = NSPanel(
+        // Creating the highlight panels
+        let highlightPanel = NSPanel(
             contentRect: bounds,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
         )
         
-        panel.isOpaque = false
-        panel.backgroundColor = .clear
-        panel.hasShadow = false
-        panel.level = .floating
-        panel.ignoresMouseEvents = true
+        highlightPanel.isOpaque = false
+        highlightPanel.backgroundColor = .clear
+        highlightPanel.hasShadow = false
+        highlightPanel.level = .floating
+        highlightPanel.ignoresMouseEvents = true
         
-        let contentView = NSHostingView(rootView: WordOverlayView(word: word, frame: bounds))
-        panel.contentView = contentView
-        
-        panel.orderFront(nil)
-        
-        wordOverlays.append((panel, bounds))
-        
-    }
-    
-    func createSuggestionWindow(word: String, bounds: CGRect) {
-        
+        // Creating the suggestion panel
         fetchNote(for: word)
         let suggestions: [Note] = notes
         
-        let adjustedBounds = CGRect(
+        let suggestionPanelBounds = CGRect(
             x: bounds.minX,
             y: bounds.maxY,
             width: bounds.width,
             height: bounds.height
         )
         
-        let panel = NSPanel(
-            contentRect: adjustedBounds,
+        let suggestionPanel = NSPanel(
+            contentRect: suggestionPanelBounds,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
         )
         
-        panel.isOpaque = false
-        panel.backgroundColor = .white
-        panel.hasShadow = false
-        panel.level = .floating
-        panel.ignoresMouseEvents = false
+        suggestionPanel.isOpaque = false
+        suggestionPanel.backgroundColor = .white
+        suggestionPanel.hasShadow = false
+        suggestionPanel.level = .floating
+        suggestionPanel.ignoresMouseEvents = false
         
-        let contentView = NSHostingView(rootView: SuggestionView(suggestions: suggestions, onDismiss: { [weak self] in
-            self?.deleteSuggestionOverlay()
-            self?.notes.removeAll()
-        }))
-        panel.contentView = contentView
+        let contentView = NSHostingView(rootView: WordOverlayView(
+            word: word,
+            frame: bounds,
+            suggestions: suggestions,
+            onDismiss: { [weak self] in
+                self?.deleteSuggestionOverlay()
+                self?.notes.removeAll()
+            }))
         
-        panel.orderFront(nil)
-        suggestionOverlay = panel
+        highlightPanel.contentView = contentView
+        
+        highlightPanel.orderFront(nil)
+        
+        wordOverlays.append((highlightPanel, bounds))
+        
+        /*
+         SUGGESTION WINDOW
+         
+         panel.contentView = contentView
+         
+         panel.orderFront(nil)
+         suggestionOverlay = panel
+         */
         
     }
     
@@ -292,28 +298,6 @@ public class OverlayController: ObservableObject {
     private func processNote() {
         
         
-        
-    }
-    
-    // ------------------------ SETTERS ---------------------------------
-    
-    func setWordHovered(word: String, hovering: Bool, frame: CGRect) {
-        
-        isWordHovered = hovering
-            
-        if hovering {
-            createSuggestionWindow(word: word, bounds: frame)
-        }
-        
-    }
-    
-    func setSuggestionHovered(hovering: Bool) {
-
-        isSuggestionHovered = hovering
-            
-        if !hovering && !isWordHovered {
-            deleteSuggestionOverlay()
-        }
         
     }
     
