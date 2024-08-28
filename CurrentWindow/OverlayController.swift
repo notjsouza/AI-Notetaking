@@ -9,26 +9,22 @@ import SwiftUI
 
 public class OverlayController: ObservableObject {
     
+    @Published var isWordHovered: Bool = false
+    @Published var isSuggestionHovered: Bool = false
+    
     private var activeTextField: String = ""
     private var bounds: CGRect?
     
     private var timer: Timer?
     
-    //OverlayModel
-    private var notes: [Note] = []
-    
-    //WindowManager
     private var wordOverlays: [(NSWindow, CGRect)] = []
     private var suggestionOverlay: NSWindow?
-    
-    //Check later
-    private var borderWindow: NSWindow?
     
     private var hoveredWordFrame: CGRect?
     private var suggestionWindowBounds: CGRect?
     
-    @Published var isWordHovered: Bool = false
-    @Published var isSuggestionHovered: Bool = false
+    //Check later
+    private var borderWindow: NSWindow?
         
     // ------------------------ TIMERS --------------------------------
 
@@ -45,9 +41,35 @@ public class OverlayController: ObservableObject {
         
     }
     
+    // ------------------------ SETTERS ---------------------------------
+    
+    func setWordHovered(word: String, hovering: Bool, frame: CGRect) {
+        
+        isWordHovered = hovering
+        print("word: \(isWordHovered)")
+        
+        if hovering {
+            createSuggestionWindow(word: word, bounds: frame)
+        } else {
+            checkToDeleteSuggestionOverlay()
+        }
+        
+    }
+    
+    func setSuggestionHovered(hovering: Bool) {
+
+        isSuggestionHovered = hovering
+        print("suggestion: \(isSuggestionHovered)")
+            
+        if !hovering {
+            checkToDeleteSuggestionOverlay()
+        }
+        
+    }
+    
     // ------------------------ TEXT FUNCTIONS ------------------------
     
-    func checkCurrentTextFieldValue() {
+    private func checkCurrentTextFieldValue() {
         
         guard let (curValue, curElement, curBounds) = getTextFieldData() else { return }
         
@@ -75,7 +97,7 @@ public class OverlayController: ObservableObject {
                 
     }
     
-    func getTextFieldData() -> (String, AXUIElement, CGRect)? {
+    private func getTextFieldData() -> (String, AXUIElement, CGRect)? {
         
         // Defines app as the focused application
         guard let app = NSWorkspace.shared.frontmostApplication else { return nil }
@@ -123,7 +145,7 @@ public class OverlayController: ObservableObject {
     
     // ------------------------ OVERLAY CREATORS ------------------------
     
-    func createOverlay(text: String, element: AXUIElement) {
+    private func createOverlay(text: String, element: AXUIElement) {
         
         let words = text.components(separatedBy: .whitespacesAndNewlines)
         
@@ -187,7 +209,7 @@ public class OverlayController: ObservableObject {
         
     }
     
-    func createOverlayWindows(for word: String, bounds: CGRect) {
+    private func createOverlayWindows(for word: String, bounds: CGRect) {
         
         let panel = NSPanel(
             contentRect: bounds,
@@ -211,48 +233,68 @@ public class OverlayController: ObservableObject {
         
     }
     
-    func createSuggestionWindow(word: String, bounds: CGRect) {
+    private func createSuggestionWindow(word: String, bounds: CGRect) {
         
-        fetchNote(for: word)
-        let suggestions: [Note] = notes
+        if suggestionOverlay != nil {
+            deleteSuggestionOverlay()
+        }
+    
+        var suggestions: [Note] = []
         
-        let adjustedBounds = CGRect(
-            x: bounds.minX,
-            y: bounds.maxY,
-            width: bounds.width,
-            height: bounds.height
-        )
-        
-        let panel = NSPanel(
-            contentRect: adjustedBounds,
-            styleMask: [.borderless, .nonactivatingPanel],
-            backing: .buffered,
-            defer: false
-        )
-        
-        panel.isOpaque = false
-        panel.backgroundColor = .white
-        panel.hasShadow = false
-        panel.level = .floating
-        panel.ignoresMouseEvents = false
-        
-        let contentView = NSHostingView(rootView: SuggestionView(suggestions: suggestions, onDismiss: { [weak self] in
-            self?.deleteSuggestionOverlay()
-            self?.notes.removeAll()
-        }))
-        panel.contentView = contentView
-        
-        panel.orderFront(nil)
-        suggestionOverlay = panel
+        fetchNote(for: word, completionHandler: { [weak self] note in
+            
+            guard let self = self else { return }
+            
+            if let note = note {
+                print("Note recieved \(note.title)")
+                suggestions.append(note)
+            } else {
+                print("Filed to retrieve note")
+            }
+            
+            DispatchQueue.main.async {
+                
+                let adjustedBounds = CGRect(
+                    x: bounds.minX,
+                    y: bounds.maxY - 2,
+                    width: bounds.width,
+                    height: bounds.height
+                )
+                
+                let panel = NSPanel(
+                    contentRect: adjustedBounds,
+                    styleMask: [.borderless, .nonactivatingPanel],
+                    backing: .buffered,
+                    defer: false
+                )
+                
+                panel.isOpaque = false
+                panel.backgroundColor = .white
+                panel.hasShadow = false
+                panel.level = .floating
+                panel.ignoresMouseEvents = false
+                
+                let contentView = NSHostingView(rootView: SuggestionView(suggestions: suggestions, onDismiss: {
+                    self.deleteSuggestionOverlay()
+                }))
+                panel.contentView = contentView
+                
+                panel.orderFront(nil)
+                self.suggestionOverlay = panel
+                
+            }
+            
+        })
         
     }
     
     // ------------------------ NOTE RETRIEVAL --------------------------
     
-    func fetchNote(for word: String) {
+    private func fetchNote(for word: String, completionHandler: @escaping (Note?) -> Void) {
         
         guard let url = URL(string: "http://127.0.0.1:5000/get_note") else {
             print("Failed to get url")
+            completionHandler(nil)
             return
         }
         
@@ -265,56 +307,39 @@ public class OverlayController: ObservableObject {
         let body: [String: String] = ["word": word]
         req.httpBody = try? JSONSerialization.data(withJSONObject: body)
         
-        URLSession.shared.dataTask(with: req) { [weak self] data, response, error in
+        URLSession.shared.dataTask(with: req) { data, response, error in
             
             if let error = error {
                 print("Error: \(error.localizedDescription)")
+                completionHandler(nil)
                 return
             }
             
             guard let data = data else {
                 print("No data recieved")
+                completionHandler(nil)
                 return
             }
             
             if let decodedResponse = try? JSONDecoder().decode(Note.self, from: data) {
-                
-                self?.notes.append(Note(title: decodedResponse.title, content: decodedResponse.content))
-                return
+                completionHandler(decodedResponse)
             } else {
                 print("Failed to decode response")
-                return
+                completionHandler(nil)
             }
         }.resume()
                 
     }
     
-    private func processNote() {
-        
-        
-        
-    }
+    // ------------------------ NOTE RETRIEVAL --------------------------
     
-    // ------------------------ SETTERS ---------------------------------
-    
-    func setWordHovered(word: String, hovering: Bool, frame: CGRect) {
-        
-        isWordHovered = hovering
-            
-        if hovering {
-            createSuggestionWindow(word: word, bounds: frame)
-        }
-        
-    }
-    
-    func setSuggestionHovered(hovering: Bool) {
-
-        isSuggestionHovered = hovering
-            
-        if !hovering && !isWordHovered {
+    private func checkToDeleteSuggestionOverlay() {
+                
+        print("isWordHovered: \(isWordHovered), isSuggestionHovered: \(isSuggestionHovered)")
+        if !isWordHovered && !isSuggestionHovered {
             deleteSuggestionOverlay()
+            print("deleting window")
         }
-        
     }
     
     // ------------------------ CLEANUP / DELETERS ------------------------
@@ -333,28 +358,29 @@ public class OverlayController: ObservableObject {
         
     }
     
-    func deleteBorderOverlay() {
+    private func deleteBorderOverlay() {
         
         borderWindow?.close()
         
     }
     
-    func deleteTextOverlay() {
+    private func deleteTextOverlay() {
         
         wordOverlays.forEach { $0.0.close() }
         wordOverlays.removeAll()
         
     }
     
-    func deleteSuggestionOverlay() {
+    private func deleteSuggestionOverlay() {
         
-        suggestionOverlay?.close()
+        suggestionOverlay?.orderOut(nil)
+        suggestionOverlay = nil
         
     }
     
 // -----V FOR DEBUGGING - DELETE LATER V ----------------------------------
     
-    func createBorderOverlay(for frame: CGRect) {
+    private func createBorderOverlay(for frame: CGRect) {
         
         guard let screen = NSScreen.main else { return }
         

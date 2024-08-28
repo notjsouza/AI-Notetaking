@@ -34,98 +34,6 @@
             endingLineNumber = "13"
             landmarkName = "unknown"
             landmarkType = "0">
-            <Locations>
-               <Location
-                  uuid = "9343B62A-A582-4232-BDCF-54FC8E52AB09 - 19a4cc85f96155be"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "property wrapper backing initializer of CurrentWindow.OverlayContentView.appDelegate : CurrentWindow.AppDelegate"
-                  moduleName = "CurrentWindow"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/Documents/CurrentWindow/CurrentWindow/ContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "0"
-                  endingLineNumber = "0"
-                  offsetFromSymbolStart = "20">
-               </Location>
-               <Location
-                  uuid = "9343B62A-A582-4232-BDCF-54FC8E52AB09 - 47f8ddbf5b031adc"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CurrentWindow.OverlayContentView.appDelegate.getter : CurrentWindow.AppDelegate"
-                  moduleName = "CurrentWindow"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/Documents/CurrentWindow/CurrentWindow/ContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "0"
-                  endingLineNumber = "0"
-                  offsetFromSymbolStart = "16">
-               </Location>
-               <Location
-                  uuid = "9343B62A-A582-4232-BDCF-54FC8E52AB09 - 3f19d68afad8a144"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CurrentWindow.OverlayContentView.appDelegate.setter : CurrentWindow.AppDelegate"
-                  moduleName = "CurrentWindow"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/Documents/CurrentWindow/CurrentWindow/ContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "12"
-                  endingLineNumber = "12"
-                  offsetFromSymbolStart = "0">
-               </Location>
-               <Location
-                  uuid = "9343B62A-A582-4232-BDCF-54FC8E52AB09 - b078eb89237a4055"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CurrentWindow.OverlayContentView.appDelegate.modify : CurrentWindow.AppDelegate"
-                  moduleName = "CurrentWindow"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/Documents/CurrentWindow/CurrentWindow/ContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "12"
-                  endingLineNumber = "12"
-                  offsetFromSymbolStart = "0">
-               </Location>
-               <Location
-                  uuid = "9343B62A-A582-4232-BDCF-54FC8E52AB09 - 243bd233e522a5bc"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CurrentWindow.OverlayContentView.appDelegate.modify : CurrentWindow.AppDelegate with unmangled suffix &quot;.resume.0&quot;"
-                  moduleName = "CurrentWindow"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/Documents/CurrentWindow/%3Ccompiler-generated%3E"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "0"
-                  endingLineNumber = "0"
-                  offsetFromSymbolStart = "4">
-               </Location>
-               <Location
-                  uuid = "9343B62A-A582-4232-BDCF-54FC8E52AB09 - 16b5fff8fc57b2bc"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CurrentWindow.OverlayContentView.$appDelegate.getter : SwiftUI.ObservedObject&lt;CurrentWindow.AppDelegate&gt;.Wrapper"
-                  moduleName = "CurrentWindow"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/Documents/CurrentWindow/CurrentWindow/ContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "12"
-                  endingLineNumber = "12"
-                  offsetFromSymbolStart = "0">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -142,38 +50,6 @@
             endingLineNumber = "14"
             landmarkName = "unknown"
             landmarkType = "0">
-            <Locations>
-               <Location
-                  uuid = "955463A8-803C-4391-87FD-EDAD707A31BE - 93a6c9919c6ea2f8"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "property wrapper backing initializer of CurrentWindow.OverlayContentView.selectedText : Swift.String"
-                  moduleName = "CurrentWindow"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/Documents/CurrentWindow/CurrentWindow/ContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "0"
-                  endingLineNumber = "0"
-                  offsetFromSymbolStart = "36">
-               </Location>
-               <Location
-                  uuid = "955463A8-803C-4391-87FD-EDAD707A31BE - 1d62a18d4784cae7"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CurrentWindow.OverlayContentView.init(appDelegate: CurrentWindow.AppDelegate) -&gt; CurrentWindow.OverlayContentView"
-                  moduleName = "CurrentWindow"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/Documents/CurrentWindow/CurrentWindow/ContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "13"
-                  endingLineNumber = "13"
-                  offsetFromSymbolStart = "44">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -238,38 +114,6 @@
             endingLineNumber = "20"
             landmarkName = "body"
             landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "8D0EF737-F041-43A5-9B94-FD29C0A37EB9 - f374a21821018a35"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; SwiftUI.TupleView&lt;(SwiftUI.Text, SwiftUI.ForEach&lt;Swift.Array&lt;Swift.String&gt;, Swift.String, SwiftUI.Button&lt;SwiftUI.Text&gt;&gt;, SwiftUI.Button&lt;SwiftUI.HStack&lt;SwiftUI.TupleView&lt;(SwiftUI.Image, SwiftUI.Text)&gt;&gt;&gt;)&gt; in CurrentWindow.SuggestionView.body.getter : some"
-                  moduleName = "CurrentWindow"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/Documents/CurrentWindow/CurrentWindow/SuggestionView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "20"
-                  endingLineNumber = "20"
-                  offsetFromSymbolStart = "812">
-               </Location>
-               <Location
-                  uuid = "8D0EF737-F041-43A5-9B94-FD29C0A37EB9 - e420c3633fa4d5b7"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.String) -&gt; SwiftUI.Button&lt;SwiftUI.Text&gt; in closure #1 () -&gt; SwiftUI.TupleView&lt;(SwiftUI.Text, SwiftUI.ForEach&lt;Swift.Array&lt;Swift.String&gt;, Swift.String, SwiftUI.Button&lt;SwiftUI.Text&gt;&gt;, SwiftUI.Button&lt;SwiftUI.HStack&lt;SwiftUI.TupleView&lt;(SwiftUI.Image, SwiftUI.Text)&gt;&gt;&gt;)&gt; in CurrentWindow.SuggestionView.body.getter : some"
-                  moduleName = "CurrentWindow"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/Documents/CurrentWindow/CurrentWindow/SuggestionView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "20"
-                  endingLineNumber = "20"
-                  offsetFromSymbolStart = "196">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -298,42 +142,10 @@
             filePath = "CurrentWindow/OverlayController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "282"
-            endingLineNumber = "282"
-            landmarkName = "fetchNote(for:)"
+            startingLineNumber = "330"
+            endingLineNumber = "330"
+            landmarkName = "fetchNote(for:completionHandler:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "01BB285E-5B81-427D-ACC9-DC731ACF7C01 - f051785b9478ceb6"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 @Sendable (Swift.Optional&lt;Foundation.Data&gt;, Swift.Optional&lt;__C.NSURLResponse&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in CurrentWindow.OverlayController.fetchNote(for: Swift.String) -&gt; Swift.Optional&lt;CurrentWindow.Note&gt;"
-                  moduleName = "CurrentWindow"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/Documents/CurrentWindow/CurrentWindow/OverlayController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "283"
-                  endingLineNumber = "283"
-                  offsetFromSymbolStart = "2144">
-               </Location>
-               <Location
-                  uuid = "01BB285E-5B81-427D-ACC9-DC731ACF7C01 - 7577b64f9cfd2270"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 @Sendable (Swift.Optional&lt;Foundation.Data&gt;, Swift.Optional&lt;__C.NSURLResponse&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in CurrentWindow.OverlayController.fetchNote(for: Swift.String) -&gt; ()"
-                  moduleName = "CurrentWindow"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/Documents/CurrentWindow/CurrentWindow/OverlayController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "282"
-                  endingLineNumber = "282"
-                  offsetFromSymbolStart = "1544">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -346,106 +158,10 @@
             filePath = "CurrentWindow/OverlayController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "283"
-            endingLineNumber = "283"
-            landmarkName = "fetchNote(for:)"
+            startingLineNumber = "331"
+            endingLineNumber = "331"
+            landmarkName = "fetchNote(for:completionHandler:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "A03168AB-A040-4C4B-9060-56A44616A956 - f051785b9478ce99"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 @Sendable (Swift.Optional&lt;Foundation.Data&gt;, Swift.Optional&lt;__C.NSURLResponse&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in CurrentWindow.OverlayController.fetchNote(for: Swift.String) -&gt; Swift.Optional&lt;CurrentWindow.Note&gt;"
-                  moduleName = "CurrentWindow"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/Documents/CurrentWindow/CurrentWindow/OverlayController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "284"
-                  endingLineNumber = "284"
-                  offsetFromSymbolStart = "2364">
-               </Location>
-               <Location
-                  uuid = "A03168AB-A040-4C4B-9060-56A44616A956 - 7577b64f9cfd2291"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 @Sendable (Swift.Optional&lt;Foundation.Data&gt;, Swift.Optional&lt;__C.NSURLResponse&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in CurrentWindow.OverlayController.fetchNote(for: Swift.String) -&gt; ()"
-                  moduleName = "CurrentWindow"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/Documents/CurrentWindow/CurrentWindow/OverlayController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "283"
-                  endingLineNumber = "283"
-                  offsetFromSymbolStart = "1780">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "4C2A7226-C33F-4C06-B5B8-CB441A6D62CB"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "CurrentWindow/OverlayController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "217"
-            endingLineNumber = "217"
-            landmarkName = "createSuggestionWindow(word:bounds:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "ECB82E12-4FA7-4A63-B8BE-4C007B36101C"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "CurrentWindow/OverlayController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "218"
-            endingLineNumber = "218"
-            landmarkName = "createSuggestionWindow(word:bounds:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "ECB82E12-4FA7-4A63-B8BE-4C007B36101C - c05c985d1c3db651"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CurrentWindow.OverlayController.createSuggestionWindow(word: Swift.String, bounds: __C.CGRect) -&gt; ()"
-                  moduleName = "CurrentWindow"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/Documents/CurrentWindow/CurrentWindow/OverlayController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "217"
-                  endingLineNumber = "217"
-                  offsetFromSymbolStart = "380">
-               </Location>
-               <Location
-                  uuid = "ECB82E12-4FA7-4A63-B8BE-4C007B36101C - c05c985d1c3db651"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CurrentWindow.OverlayController.createSuggestionWindow(word: Swift.String, bounds: __C.CGRect) -&gt; ()"
-                  moduleName = "CurrentWindow"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/justin/Documents/CurrentWindow/CurrentWindow/OverlayController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "217"
-                  endingLineNumber = "217"
-                  offsetFromSymbolStart = "228">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
