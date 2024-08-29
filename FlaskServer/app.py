@@ -1,5 +1,5 @@
 
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify  # #, request
 import random
 
 app = Flask(__name__)
@@ -74,18 +74,18 @@ notes = {
 
 @app.route('/get_note', methods=['POST'])
 def get_note():
-    data = request.json
-    word = data.get('word')
+
+    # #data = request.json
+    # #word = data.get('word')
 
     note = random.choice(list(notes.values()))
-
-    if note:
-        res = {
-            "title": note['title'],
-            "content": note['content']
-        }
+    res = {
+        "title": note['title'],
+        "content": note['content']
+    }
 
     return jsonify(res)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

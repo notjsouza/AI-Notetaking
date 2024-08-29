@@ -6,64 +6,80 @@
 //
 
 import SwiftUI
+import Combine
 
-public class OverlayController: ObservableObject {
+class OverlayController: ObservableObject {
+    
+    static let shared = OverlayController()
     
     @Published var isWordHovered: Bool = false
     @Published var isSuggestionHovered: Bool = false
-    
+    @Published var isSuggestionVisible: Bool = false
+        
     private var activeTextField: String = ""
     private var bounds: CGRect?
     
     private var timer: Timer?
+    private var cancellables = Set<AnyCancellable>()
+    private let deletionDelay: TimeInterval = 0.3
     
     private var wordOverlays: [(NSWindow, CGRect)] = []
     private var suggestionOverlay: NSWindow?
+    private var noteOverlay: [NSWindow] = []
     
     private var hoveredWordFrame: CGRect?
     private var suggestionWindowBounds: CGRect?
     
-    //Check later
+    //DELETE LATER
     private var borderWindow: NSWindow?
         
     // ------------------------ TIMERS --------------------------------
-
+        
+    init() {
+        setupStateManagement()
+    }
+    
+    private func setupStateManagement() {
+        
+        Publishers.CombineLatest($isWordHovered, $isSuggestionHovered)
+            .debounce(for: .seconds(deletionDelay), scheduler: RunLoop.main)
+            .sink { [weak self] wordHovered, suggestionHovered in
+                if !wordHovered && !suggestionHovered {
+                    self?.deleteSuggestionOverlay()
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
     func startTimer() {
         
         timer = Timer.scheduledTimer(
             withTimeInterval: 0.1,
             repeats: true
         ) { [weak self] timer in
-        
             self?.checkCurrentTextFieldValue()
-            
         }
-        
     }
     
     // ------------------------ SETTERS ---------------------------------
     
     func setWordHovered(word: String, hovering: Bool, frame: CGRect) {
-        
         isWordHovered = hovering
         print("word: \(isWordHovered)")
         
-        if hovering {
+        if hovering && !isSuggestionVisible {
             createSuggestionWindow(word: word, bounds: frame)
-        } else {
-            checkToDeleteSuggestionOverlay()
         }
-        
     }
-    
+        
     func setSuggestionHovered(hovering: Bool) {
-
         isSuggestionHovered = hovering
         print("suggestion: \(isSuggestionHovered)")
-            
-        if !hovering {
-            checkToDeleteSuggestionOverlay()
-        }
+    }
+    
+    func setNoteSelected(note: Note) {
+        
+        createNoteWindow(note: note)
         
     }
     
@@ -148,16 +164,13 @@ public class OverlayController: ObservableObject {
     private func createOverlay(text: String, element: AXUIElement) {
         
         let words = text.components(separatedBy: .whitespacesAndNewlines)
-        
+        let relevantWords = ["flask", "button", "text", "database", "chatgpt", "logic", "swift", "similar", "python", "backend"]
         var curIndex = 0
         
         for word in words {
-            
             if word.isEmpty {
-                
                 curIndex += 1
                 continue
-                
             }
             
             let range = NSRange(location: curIndex, length: word.count)
@@ -174,7 +187,6 @@ public class OverlayController: ObservableObject {
                 &boundsRef
             )
             
-            
             if res == .success, let boundsValue = boundsRef as! AXValue? {
                 //print("\(boundsValue): \(word)")
                 var bounds = CGRect.zero
@@ -183,7 +195,6 @@ public class OverlayController: ObservableObject {
                     .cgRect,
                     &bounds
                 ) {
-                   
                     guard let screen = NSScreen.main else { return }
                     
                     let adjustedY = screen.frame.height - bounds.origin.y - bounds.height
@@ -194,19 +205,17 @@ public class OverlayController: ObservableObject {
                         height: bounds.height
                     )
                     
-                    //print("\(adjustedBounds): \(word)")
-                    createOverlayWindows(for: word, bounds: adjustedBounds)
+                    let checkedString = word.filter { $0.isLetter || $0.isNumber }
+                    
+                    if relevantWords.contains(checkedString.lowercased()) {
+                        createOverlayWindows(for: word, bounds: adjustedBounds)
+                    }
                     
                 } else {
-                    
                     print("failed to get bounds for \(word)")
-                    
                 }
-                
             }
-            
         }
-        
     }
     
     private func createOverlayWindows(for word: String, bounds: CGRect) {
@@ -281,10 +290,47 @@ public class OverlayController: ObservableObject {
                 
                 panel.orderFront(nil)
                 self.suggestionOverlay = panel
+                self.isSuggestionVisible = true
                 
             }
             
         })
+        
+    }
+    
+    private func createNoteWindow(note: Note) {
+        
+        guard let screen = NSScreen.main else { return }
+                
+        let noteBounds = CGRect(
+            x: 100,
+            y: screen.frame.height / 2,
+            width: 250,
+            height: 200
+        )
+        
+        let panel = NSPanel(
+                contentRect: noteBounds,
+                styleMask: [.nonactivatingPanel, .borderless],
+                backing: .buffered,
+                defer: false
+            )
+        
+        panel.isMovableByWindowBackground = true
+        panel.hasShadow = true
+        panel.level = .floating
+        panel.isFloatingPanel = true
+        panel.becomesKeyOnlyIfNeeded = true
+        
+        let contentView = NSHostingView(rootView: NoteView(note: note, onDismiss: {
+            self.deleteNoteOverlay()
+        }))
+        panel.contentView = contentView
+        
+        panel.setContentSize(contentView.fittingSize)
+        
+        panel.orderFront(nil)
+        noteOverlay.append(panel)
         
     }
     
@@ -349,7 +395,7 @@ public class OverlayController: ObservableObject {
         deleteBorderOverlay()
         deleteTextOverlay()
         deleteSuggestionOverlay()
-        
+        deleteNoteOverlay()
     }
     
     func stopTimer() {
@@ -375,6 +421,14 @@ public class OverlayController: ObservableObject {
         
         suggestionOverlay?.orderOut(nil)
         suggestionOverlay = nil
+        isSuggestionVisible = false
+        
+    }
+    
+    private func deleteNoteOverlay() {
+        
+        noteOverlay.forEach { $0.close() }
+        noteOverlay.removeAll()
         
     }
     

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct WordOverlayView: View {
     
-    @StateObject private var controller = OverlayController()
+    @StateObject private var controller = OverlayController.shared
     let word: String
     let frame: CGRect
     
@@ -17,22 +17,24 @@ struct WordOverlayView: View {
         
         VStack {
             Text(word)
-                .background(controller.isWordHovered ? Color.green.opacity(0.2) : Color.clear)
+                .background(Color.green.opacity(0.2))
+                .frame(height: controller.isWordHovered ? 100: 5)
+                .offset(y: controller.isWordHovered ? 0 : 95)
                 .foregroundColor(Color.clear)
                 .font(.system(size: 14))
                 .onHover { hovering in
-                    controller.setWordHovered(word: word, hovering: hovering, frame: frame)
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        controller.setWordHovered(word: word, hovering: hovering, frame: frame)
+                    }
                 }
             .frame(width: frame.width, height: frame.height)
-            
         }
-        
     }
 }
 
 struct SuggestionView: View {
     
-    @StateObject private var controller = OverlayController()
+    @StateObject private var controller = OverlayController.shared
     let suggestions: [Note]
     let onDismiss: () -> Void
 
@@ -45,8 +47,7 @@ struct SuggestionView: View {
             
             ForEach(Array(suggestions.enumerated()), id: \.offset) { index, suggestion in
                 Button(action: {
-                    print("Selected: \(suggestion.title)")
-                    print(suggestion.content)
+                    controller.setNoteSelected(note: suggestion)
                 }) {
                     Text(suggestion.title)
                         .foregroundColor(.blue)
@@ -73,30 +74,40 @@ struct SuggestionView: View {
             controller.setSuggestionHovered(hovering: hovering)
         }
     }
-    
 }
 
-/*
- WIP -----------------------------------------------------------
+
+// WIP -----------------------------------------------------------
 struct NoteView: View {
     
-    let noteTitle: String
-    let noteBody: String
+    let note: Note
+    let onDismiss: () -> Void
     
     var body: some View {
         
         VStack {
-            
-            Text(noteTitle)
+            Text(note.title)
                 .font(.headline)
             
             Divider()
             
-            Text(noteBody)
+            Text(note.content)
             
+            Divider()
+            
+            Button(action: onDismiss) {
+                HStack {
+                    Image(systemName: "xmark.circle")
+                    Text("Dismiss")
+                }
+            }
+            .buttonStyle(PlainButtonStyle())
         }
-        
+        .padding(10)
+        .frame(width: 250)
+        .background(Color.white)
+        .foregroundColor(Color.black)
+        .cornerRadius(12)
+        .shadow(radius: 5)
     }
-    
 }
-*/

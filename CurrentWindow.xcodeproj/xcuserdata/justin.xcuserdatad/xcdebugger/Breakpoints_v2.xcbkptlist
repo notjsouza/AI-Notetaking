@@ -142,8 +142,8 @@
             filePath = "CurrentWindow/OverlayController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "330"
-            endingLineNumber = "330"
+            startingLineNumber = "376"
+            endingLineNumber = "376"
             landmarkName = "fetchNote(for:completionHandler:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -158,8 +158,8 @@
             filePath = "CurrentWindow/OverlayController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "331"
-            endingLineNumber = "331"
+            startingLineNumber = "377"
+            endingLineNumber = "377"
             landmarkName = "fetchNote(for:completionHandler:)"
             landmarkType = "7">
          </BreakpointContent>
