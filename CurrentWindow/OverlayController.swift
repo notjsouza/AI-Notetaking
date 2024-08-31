@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import Alamofire
 
 class OverlayController: ObservableObject {
     
@@ -21,7 +22,7 @@ class OverlayController: ObservableObject {
     
     private var timer: Timer?
     private var cancellables = Set<AnyCancellable>()
-    private let deletionDelay: TimeInterval = 0.3
+    private let deletionDelay: TimeInterval = 0.2
     
     private var wordOverlays: [(NSWindow, CGRect)] = []
     private var suggestionOverlay: NSWindow?
@@ -164,7 +165,6 @@ class OverlayController: ObservableObject {
     private func createOverlay(text: String, element: AXUIElement) {
         
         let words = text.components(separatedBy: .whitespacesAndNewlines)
-        let relevantWords = ["flask", "button", "text", "database", "chatgpt", "logic", "swift", "similar", "python", "backend"]
         var curIndex = 0
         
         for word in words {
@@ -188,7 +188,6 @@ class OverlayController: ObservableObject {
             )
             
             if res == .success, let boundsValue = boundsRef as! AXValue? {
-                //print("\(boundsValue): \(word)")
                 var bounds = CGRect.zero
                 if AXValueGetValue(
                     boundsValue,
@@ -207,10 +206,12 @@ class OverlayController: ObservableObject {
                     
                     let checkedString = word.filter { $0.isLetter || $0.isNumber }
                     
-                    if relevantWords.contains(checkedString.lowercased()) {
-                        createOverlayWindows(for: word, bounds: adjustedBounds)
+                    checkWordWithServer(word: checkedString) { [weak self] isRelevant in
+                        if isRelevant {
+                            print("Relevant word identified: \(word)")
+                            self?.createOverlayWindows(for: word, bounds: adjustedBounds)
+                        }
                     }
-                    
                 } else {
                     print("failed to get bounds for \(word)")
                 }
@@ -219,6 +220,8 @@ class OverlayController: ObservableObject {
     }
     
     private func createOverlayWindows(for word: String, bounds: CGRect) {
+        
+        print("overlay drawing...")
         
         let panel = NSPanel(
             contentRect: bounds,
@@ -239,6 +242,7 @@ class OverlayController: ObservableObject {
         panel.orderFront(nil)
         
         wordOverlays.append((panel, bounds))
+        print("Word panel drawn")
         
     }
     
@@ -334,7 +338,7 @@ class OverlayController: ObservableObject {
         
     }
     
-    // ------------------------ NOTE RETRIEVAL --------------------------
+    // ------------------------ FETCH FUNCTIONS --------------------------
     
     private func fetchNote(for word: String, completionHandler: @escaping (Note?) -> Void) {
         
@@ -375,6 +379,28 @@ class OverlayController: ObservableObject {
             }
         }.resume()
                 
+    }
+    
+    private func checkWordWithServer(word: String, completion: @escaping (Bool) -> Void) {
+        
+        let parameters: [String: String] = ["word": word]
+        let url = "http://127.0.0.1:5000/check_word"
+        
+        AF.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default)
+            .responseJSON { response in
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any],
+                       let isRelevant = json["is_relevant"] as? Bool {
+                        completion(isRelevant)
+                    } else {
+                        completion(false)
+                    }
+                case .failure(let error):
+                    print("Error checking word: \(error)")
+                    completion(false)
+                }
+            }
     }
     
     // ------------------------ NOTE RETRIEVAL --------------------------

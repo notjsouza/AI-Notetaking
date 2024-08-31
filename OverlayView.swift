@@ -18,12 +18,10 @@ struct WordOverlayView: View {
         VStack {
             Text(word)
                 .background(Color.green.opacity(0.2))
-                .frame(height: controller.isWordHovered ? 100: 5)
-                .offset(y: controller.isWordHovered ? 0 : 95)
                 .foregroundColor(Color.clear)
                 .font(.system(size: 14))
                 .onHover { hovering in
-                    withAnimation(.easeInOut(duration: 0.15)) {
+                    withAnimation(.easeInOut(duration: 0.1)) {
                         controller.setWordHovered(word: word, hovering: hovering, frame: frame)
                     }
                 }

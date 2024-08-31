@@ -1,6 +1,10 @@
 
-from flask import Flask, jsonify  # #, request
+from flask import Flask, jsonify, request
 import random
+"""
+from nltk.corpus import stopwords
+from rake_nltk import Rake
+"""
 
 app = Flask(__name__)
 
@@ -71,12 +75,38 @@ notes = {
     }
 }
 
+"""
+# Initialize Rake with stopwords
+r = Rake(stopwords=stopwords.words('english'))
+
+def extract_keywords(text):
+    r.extract_keywords_from_text(text)
+    return r.get_ranked_phrases()
+
+# Example usage
+content = notes["Chocolate Chip Cookies"]["content"]
+keywords = extract_keywords(content)
+print(keywords)  # ['add eggs', 'baking soda', 'chocolate chips', ...]
+"""
+
+@app.route('/check_word', methods=['POST'])
+def check_word():
+    data = request.json
+    word = data.get('word', '').lower()
+
+    relevant_words = ["flask", "button", "text", "database", "chatgpt", "logic", "swift", "python", "backend"]
+
+    is_relevant = word in relevant_words
+
+    return jsonify({"is_relevant": is_relevant})
 
 @app.route('/get_note', methods=['POST'])
 def get_note():
 
-    # #data = request.json
-    # #word = data.get('word')
+    data = request.json
+    word = data.get('word')
+
+    # #keyWords = ["flask", "button", "text", "database", "chatgpt", "logic", "swift", "similar", "python", "backend"]
 
     note = random.choice(list(notes.values()))
     res = {
@@ -85,7 +115,6 @@ def get_note():
     }
 
     return jsonify(res)
-
 
 if __name__ == '__main__':
     app.run(debug=True)
