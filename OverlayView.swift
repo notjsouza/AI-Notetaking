@@ -8,27 +8,41 @@
 import SwiftUI
 
 struct WordOverlayView: View {
-    
+
     @StateObject private var controller = OverlayController.shared
+    
     let word: String
     let frame: CGRect
+    let underlineThickness: CGFloat = 3 // Adjust this value to change the underline thickness
     
+    @State private var isHovered: Bool = false
+    @State private var opacity: Double = 1
+
     var body: some View {
-        
         VStack {
             Text(word)
-                .background(Color.green.opacity(0.2))
+                .background(
+                    GeometryReader { geometry in
+                        Rectangle()
+                            .fill(Color.green.opacity(opacity))
+                            .frame(width: geometry.size.width, height: isHovered ? geometry.size.height : underlineThickness)
+                            .offset(y: isHovered ? 0 : geometry.size.height - underlineThickness)
+                    }
+                )
                 .foregroundColor(Color.clear)
                 .font(.system(size: 14))
                 .onHover { hovering in
                     withAnimation(.easeInOut(duration: 0.1)) {
+                        isHovered = hovering
+                        opacity = isHovered ? 0.2 : 1
                         controller.setWordHovered(word: word, hovering: hovering, frame: frame)
                     }
                 }
-            .frame(width: frame.width, height: frame.height)
+                .frame(width: frame.width, height: frame.height)
         }
     }
 }
+
 
 struct SuggestionView: View {
     

@@ -52,16 +52,6 @@ class OverlayController: ObservableObject {
             .store(in: &cancellables)
     }
     
-    func startTimer() {
-        
-        timer = Timer.scheduledTimer(
-            withTimeInterval: 0.1,
-            repeats: true
-        ) { [weak self] timer in
-            self?.checkCurrentTextFieldValue()
-        }
-    }
-    
     // ------------------------ SETTERS ---------------------------------
     
     func setWordHovered(word: String, hovering: Bool, frame: CGRect) {
@@ -81,45 +71,46 @@ class OverlayController: ObservableObject {
     func setNoteSelected(note: Note) {
         
         createNoteWindow(note: note)
+        deleteSuggestionOverlay()
         
     }
     
     // ------------------------ TEXT FUNCTIONS ------------------------
     
-    private func checkCurrentTextFieldValue() {
+    func runApp() {
         
-        guard let (curValue, curElement, curBounds) = getTextFieldData() else { return }
-        
-        if curValue != activeTextField {
-                
-            activeTextField = curValue
-            print(activeTextField)
+        timer = Timer.scheduledTimer(
+            withTimeInterval: 0.1,
+            repeats: true
+        ) { [weak self] timer in
             
-            deleteTextOverlay()
-            createOverlay(text: activeTextField, element: curElement)
+            guard let self = self else { return }
+            guard let (curValue, curElement, curBounds) = getTextFieldData() else { return }
+            
+            if curValue != activeTextField {
+                    
+                activeTextField = curValue
+                deleteTextOverlay()
+                createOverlay(text: activeTextField, element: curElement)
 
-        }
-        
-        if curBounds != bounds {
+            }
             
-            // ADJUST THIS FOR THE PORTION THAT IS IN VIEW
-            // in the case where there's a scrollbar it's typically going offscreen
-            
-            bounds = curBounds
-            //print(curBounds)
-
-            createBorderOverlay(for: curBounds)
-    
-        }
+            if curBounds != bounds {
                 
+                // ADJUST THIS FOR THE PORTION THAT IS IN VIEW
+                // in the case where there's a scrollbar it's typically going offscreen
+                
+                bounds = curBounds
+                createBorderOverlay(for: curBounds)
+        
+            }
+        }
     }
     
     private func getTextFieldData() -> (String, AXUIElement, CGRect)? {
         
-        // Defines app as the focused application
         guard let app = NSWorkspace.shared.frontmostApplication else { return nil }
         
-        // Grabs the PID of app, and creates an accessibility object using the pid of the focused application
         let pid = app.processIdentifier
         let appElement = AXUIElementCreateApplication(pid)
         
@@ -139,8 +130,6 @@ class OverlayController: ObservableObject {
         )
         guard valueRes == .success, let value = valueRef as? String else { return nil }
         
-        
-        // CHECK HERE IF ANY PROBLEMS
         var positionRef: CFTypeRef?
         var sizeRef: CFTypeRef?
         guard AXUIElementCopyAttributeValue(element, kAXPositionAttribute as CFString, &positionRef) == .success,
@@ -198,9 +187,9 @@ class OverlayController: ObservableObject {
                     
                     let adjustedY = screen.frame.height - bounds.origin.y - bounds.height
                     let adjustedBounds = CGRect(
-                        x: bounds.origin.x,
+                        x: bounds.origin.x - 1,
                         y: adjustedY,
-                        width: bounds.width,
+                        width: bounds.width + 2,
                         height: bounds.height
                     )
                     
@@ -220,9 +209,7 @@ class OverlayController: ObservableObject {
     }
     
     private func createOverlayWindows(for word: String, bounds: CGRect) {
-        
-        print("overlay drawing...")
-        
+                
         let panel = NSPanel(
             contentRect: bounds,
             styleMask: [.borderless, .nonactivatingPanel],
@@ -242,7 +229,6 @@ class OverlayController: ObservableObject {
         panel.orderFront(nil)
         
         wordOverlays.append((panel, bounds))
-        print("Word panel drawn")
         
     }
     
@@ -401,17 +387,6 @@ class OverlayController: ObservableObject {
                     completion(false)
                 }
             }
-    }
-    
-    // ------------------------ NOTE RETRIEVAL --------------------------
-    
-    private func checkToDeleteSuggestionOverlay() {
-                
-        print("isWordHovered: \(isWordHovered), isSuggestionHovered: \(isSuggestionHovered)")
-        if !isWordHovered && !isSuggestionHovered {
-            deleteSuggestionOverlay()
-            print("deleting window")
-        }
     }
     
     // ------------------------ CLEANUP / DELETERS ------------------------
