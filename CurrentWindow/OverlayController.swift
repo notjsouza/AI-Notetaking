@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 import Alamofire
+import ApplicationServices
 
 class OverlayController: ObservableObject {
     
@@ -34,8 +35,8 @@ class OverlayController: ObservableObject {
     //DELETE LATER
     private var borderWindow: NSWindow?
         
-    // ------------------------ TIMERS --------------------------------
-        
+    // ------------------------ INITIALIZERS --------------------------------
+
     init() {
         setupStateManagement()
     }
@@ -56,7 +57,6 @@ class OverlayController: ObservableObject {
     
     func setWordHovered(word: String, hovering: Bool, frame: CGRect) {
         isWordHovered = hovering
-        print("word: \(isWordHovered)")
         
         if hovering && !isSuggestionVisible {
             createSuggestionWindow(word: word, bounds: frame)
@@ -65,7 +65,6 @@ class OverlayController: ObservableObject {
         
     func setSuggestionHovered(hovering: Bool) {
         isSuggestionHovered = hovering
-        print("suggestion: \(isSuggestionHovered)")
     }
     
     func setNoteSelected(note: Note) {
@@ -75,8 +74,8 @@ class OverlayController: ObservableObject {
         
     }
     
-    // ------------------------ TEXT FUNCTIONS ------------------------
-    
+    // ------------------------ PROPERTY FUNCTIONS ------------------------
+
     func runApp() {
         
         timer = Timer.scheduledTimer(
@@ -92,6 +91,7 @@ class OverlayController: ObservableObject {
                 activeTextField = curValue
                 deleteTextOverlay()
                 createOverlay(text: activeTextField, element: curElement)
+                getWordBoundingBoxes()
 
             }
             
@@ -148,6 +148,116 @@ class OverlayController: ObservableObject {
         return (value, element, elementBounds)
         
     }
+    
+    // ---------------------- TESTING ---------------------------------------------------------------
+    
+    private func getWordBoundingBoxes() {
+        
+        let workspaceInfo = NSWorkspace.shared
+        let runningApps = workspaceInfo.runningApplications
+            
+        for app in runningApps {
+            
+            if app.localizedName! == "Spotify" {
+                
+                print(app.localizedName!)
+                
+                let appRef = AXUIElementCreateApplication(app.processIdentifier)
+                
+                var value: CFTypeRef?
+                let res = AXUIElementCopyAttributeValue(appRef, kAXWindowsAttribute as CFString, &value)
+                if res == .success, let windows = value as? [AXUIElement] {
+                    
+                    for window in windows {
+                        
+                        print(window)
+                        
+                        traverseAccessibilityHeierarchy(element: window) { element in
+                            var role: CFTypeRef?
+                            AXUIElementCopyAttributeValue(element, kAXRoleAttribute as CFString, &role)
+                            
+                            if let role = role as? String, role == kAXStaticTextRole {
+                                var positionRef: CFTypeRef?
+                                var sizeRef: CFTypeRef?
+                                guard AXUIElementCopyAttributeValue(element, kAXPositionAttribute as CFString, &positionRef) == .success,
+                                      AXUIElementCopyAttributeValue(element, kAXSizeAttribute as CFString, &sizeRef) == .success,
+                                      let positionValue = positionRef as! AXValue?,
+                                      let sizeValue = sizeRef as! AXValue? else { return }
+                                
+                                var position = CGPoint.zero
+                                var size = CGSize.zero
+                                
+                                AXValueGetValue(positionValue, .cgPoint, &position)
+                                AXValueGetValue(sizeValue, .cgSize, &size)
+                                
+                                let frame = CGRect(origin: position, size: size)
+                                
+                                var stringValue: CFTypeRef?
+                                guard AXUIElementCopyAttributeValue(element, kAXValueAttribute as CFString, &stringValue) == .success,
+                                        let stringValue = stringValue as? String else { return }
+                                
+                                let words = stringValue.components(separatedBy: .whitespacesAndNewlines)
+                                
+                                for word in words {
+                                    
+                                    print(word)
+                                    if word != "" || word != " " {
+                                        let wordBounds = estimateWordFrame(word: word, in: frame, fullText: stringValue)
+                                        print("\(word): \(wordBounds)")
+                                        createBorderOverlay(for: wordBounds.frame)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+            }
+            
+            
+        }
+    }
+    
+    private func traverseAccessibilityHeierarchy(element: AXUIElement, action: (AXUIElement) -> Void) {
+        
+        action(element)
+        
+        var value: CFTypeRef?
+        let res = AXUIElementCopyAttributeValue(element, kAXChildrenAttribute as CFString, &value)
+        guard res == .success, let children = value as? [AXUIElement] else { return }
+        
+        for child in children {
+            traverseAccessibilityHeierarchy(element: child, action: action)
+        }
+        
+    }
+    
+    func estimateWordFrame(word: String, in totalFrame: CGRect, fullText: String) -> WordBoundingBox {
+        let fullTextWidth = totalFrame.width
+        let fullTextLength = fullText.count
+        let wordLength = word.count
+        
+        let estimatedWordWidth = (CGFloat(wordLength) / CGFloat(fullTextLength)) * fullTextWidth
+        
+        if let startIndex = fullText.range(of: word)?.lowerBound {
+            let distanceFromStart = fullText.distance(from: fullText.startIndex, to: startIndex)
+            let estimatedStartX = (CGFloat(distanceFromStart) / CGFloat(fullTextLength)) * fullTextWidth
+            
+            let wordFrame = CGRect(
+                x: totalFrame.minX + estimatedStartX,
+                y: totalFrame.minY,
+                width: estimatedWordWidth,
+                height: totalFrame.height
+            )
+            //print("\(word): \(wordFrame)")
+            return WordBoundingBox(word: word, frame: wordFrame)
+        } else {
+            //print("Warning: Word '\(word)' not found in full text. Returning full frame.")
+            return WordBoundingBox(word: word, frame: totalFrame)
+        }
+    }
+    
+    // --------------------------------------------------------------------------------------------------------
     
     // ------------------------ OVERLAY CREATORS ------------------------
     
