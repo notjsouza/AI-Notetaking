@@ -86,23 +86,21 @@ struct SuggestionView: View {
 
 // WIP -----------------------------------------------------------
 struct NoteView: View {
-    
-    let note: Note
-    let onDismiss: () -> Void
+    let noteWindow: NoteWindow
+    let onDismiss: (NoteWindow) -> Void
     
     var body: some View {
-        
         VStack {
-            Text(note.title)
+            Text(noteWindow.note.title)
                 .font(.headline)
             
             Divider()
             
-            Text(note.content)
+            Text(noteWindow.note.content)
             
             Divider()
             
-            Button(action: onDismiss) {
+            Button(action: { onDismiss(noteWindow) }) {
                 HStack {
                     Image(systemName: "xmark.circle")
                     Text("Dismiss")

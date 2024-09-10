@@ -1,5 +1,7 @@
 
 from flask import Flask, jsonify, request
+from dotenv import load_dotenv
+import os
 import random
 """
 from nltk.corpus import stopwords
@@ -7,6 +9,9 @@ from rake_nltk import Rake
 """
 
 app = Flask(__name__)
+
+load_dotenv()
+api_key = os.getenv('API_KEY')
 
 notes = {
     "Chocolate Chip Cookies": {
@@ -105,9 +110,7 @@ def get_note():
 
     data = request.json
     word = data.get('word')
-
-    # #keyWords = ["flask", "button", "text", "database", "chatgpt", "logic", "swift", "similar", "python", "backend"]
-
+    
     note = random.choice(list(notes.values()))
     res = {
         "title": note['title'],
