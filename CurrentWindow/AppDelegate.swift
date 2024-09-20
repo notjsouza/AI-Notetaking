@@ -18,13 +18,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var axObserver: AXObserver?
     
     private var runAppTimer: Timer?
-    
+        
     internal func applicationDidFinishLaunching(_ notification: Notification) {
         
-        setUpWindowActivationObserver()
-        setUpWindowDeactivationObserver()
-        setUpTextObserver()
-        controller.runApp()
+        //setUpWindowActivationObserver()
+        //setUpWindowDeactivationObserver()
+        //setUpTextObserver()
+        //controller.runApp()
+        controller.test_start()
     }
 
     internal func applicationWillTerminate(_ aNotification: Notification) {
@@ -99,5 +100,4 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             self?.controller.runApp()
         }
     }
-    
 }

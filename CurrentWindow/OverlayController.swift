@@ -22,6 +22,9 @@ class OverlayController: ObservableObject {
     
     var overlayItems: [OverlayItem] = []
     
+    //Fix later if time
+    var notes: [Note] = []
+    
     @Published private(set) var noteWindows: [NoteWindow] = []
     private var panelDictionary: [NoteWindow: NSPanel] = [:]
     
@@ -33,6 +36,25 @@ class OverlayController: ObservableObject {
     init() {
         
         setupStateManagement()
+        /*
+        initializeIndex { message in
+            if let message = message {
+                print(message)
+            } else {
+                print("Index could not be initialized")
+            }
+        }
+         */
+    }
+    
+    func test_start() {
+        initializeIndex { message in
+            if let message = message {
+                print(message)
+            } else {
+                print("Index could not be initialized")
+            }
+        }
     }
     
     private func setupStateManagement() {
@@ -143,54 +165,61 @@ class OverlayController: ObservableObject {
         deleteTextOverlay()
         
         let words = text.components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
         var curIndex = 0
-        
-        for word in words {
-            if word.isEmpty {
-                curIndex += 1
-                continue
+
+        checkWordsWithServer(words: words) { [weak self] matchingNotes in
+            guard let matchingNotes = matchingNotes else {
+                print("No matching notes found")
+                return
             }
-            
-            let range = NSRange(location: curIndex, length: word.count)
-            curIndex += word.count + 1
-            
-            var cfRange = CFRangeMake(range.location, range.length)
-            guard let rangeValue = AXValueCreate(.cfRange, &cfRange) else { continue }
-            
-            var boundsRef: CFTypeRef?
-            let res = AXUIElementCopyParameterizedAttributeValue(
-                element,
-                kAXBoundsForRangeParameterizedAttribute as CFString,
-                rangeValue,
-                &boundsRef
-            )
-            
-            if res == .success, let boundsValue = boundsRef as! AXValue? {
-                var bounds = CGRect.zero
-                if AXValueGetValue(
-                    boundsValue,
-                    .cgRect,
-                    &bounds
-                ) {
-                    guard let screen = NSScreen.main else { return }
-                    
-                    let adjustedY = screen.frame.height - bounds.origin.y - bounds.height
-                    let adjustedBounds = CGRect(
-                        x: bounds.origin.x - 1,
-                        y: adjustedY,
-                        width: bounds.width + 2,
-                        height: bounds.height
-                    )
-                    
-                    let checkedString = word.filter { $0.isLetter || $0.isNumber }
-                    
-                    checkWordWithServer(word: checkedString) { [weak self] isRelevant in
-                        if isRelevant {
-                            self?.createOverlayWindows(for: word, bounds: adjustedBounds)
-                        }
+            DispatchQueue.main.async { [weak self] in
+                for word in words {
+                    if word.isEmpty {
+                        curIndex += 1
+                        continue
                     }
-                } else {
-                    print("failed to get bounds for \(word)")
+                      
+                    if let notesForWord = matchingNotes[word.lowercased()] {
+                        let range = NSRange(location: curIndex, length: word.count)
+                        curIndex += word.count + 1
+                            
+                        var cfRange = CFRangeMake(range.location, range.length)
+                        guard let rangeValue = AXValueCreate(.cfRange, &cfRange) else { continue }
+                            
+                        var boundsRef: CFTypeRef?
+                        let res = AXUIElementCopyParameterizedAttributeValue(
+                            element,
+                            kAXBoundsForRangeParameterizedAttribute as CFString,
+                            rangeValue,
+                            &boundsRef
+                        )
+                            
+                        if res == .success, let boundsValue = boundsRef as! AXValue? {
+                            var bounds = CGRect.zero
+                            if AXValueGetValue(
+                                boundsValue,
+                                .cgRect,
+                                &bounds
+                            ) {
+                                guard let screen = NSScreen.main else { return }
+                                    
+                                let adjustedY = screen.frame.height - bounds.origin.y - bounds.height
+                                let adjustedBounds = CGRect(
+                                    x: bounds.origin.x - 1,
+                                    y: adjustedY,
+                                    width: bounds.width + 2,
+                                    height: bounds.height
+                                )
+                                self?.createOverlayWindows(for: word, bounds: adjustedBounds)
+                                print("Overlay created for word \(word) at \(adjustedBounds)")
+                            } else {
+                                print("Fauled to get bounds for \(word)")
+                            }
+                        }
+                    }  else {
+                        print("No matching notes for word: \(word)")
+                    }
                 }
             }
         }
@@ -230,47 +259,46 @@ class OverlayController: ObservableObject {
             return
         }
         
-        fetchNote(for: word, completionHandler: { [weak self] note in
-            
-            //DEBUGGING
-            if let note = note {
-                print("Note recieved \(note.title)")
-            } else {
-                print("Filed to retrieve note")
-            }
-            
-            var suggestions = note.map { [$0] } ?? []
-            
-            let adjustedBounds = CGRect(
-                x: bounds.minX,
-                y: bounds.maxY - 2,
-                width: bounds.width,
-                height: bounds.height
-            )
+        fetchNote(for: word, completionHandler: { [weak self] notes in
             
             DispatchQueue.main.async { [weak self] in
-                let panel = NSPanel(
-                    contentRect: adjustedBounds,
-                    styleMask: [.borderless, .nonactivatingPanel],
-                    backing: .buffered,
-                    defer: false
-                )
                 
-                panel.isOpaque = false
-                panel.backgroundColor = .white
-                panel.hasShadow = false
-                panel.level = .floating
-                panel.ignoresMouseEvents = false
-                
-                let contentView = NSHostingView(rootView: SuggestionView(suggestions: suggestions, onDismiss: {
-                    self?.deleteSuggestionOverlay(for: word, bounds: bounds)
-                }))
-                panel.contentView = contentView
-                
-                panel.orderFront(nil)
-                
-                self?.overlayItems[overlayItemIndex].suggestionWindow = panel
-                self?.isSuggestionVisible = true
+                //DEBUGGING
+                if let notes = notes, !notes.isEmpty {
+                    print("Note recieved \(notes.map { $0.title })")
+                                        
+                    let adjustedBounds = CGRect(
+                        x: bounds.minX,
+                        y: bounds.maxY - 2,
+                        width: bounds.width,
+                        height: bounds.height
+                    )
+                    
+                    let panel = NSPanel(
+                        contentRect: adjustedBounds,
+                        styleMask: [.borderless, .nonactivatingPanel],
+                        backing: .buffered,
+                        defer: false
+                    )
+                    
+                    panel.isOpaque = false
+                    panel.backgroundColor = .white
+                    panel.hasShadow = false
+                    panel.level = .floating
+                    panel.ignoresMouseEvents = false
+                    
+                    let contentView = NSHostingView(rootView: SuggestionView(suggestions: notes, onDismiss: {
+                        self?.deleteSuggestionOverlay(for: word, bounds: bounds)
+                    }))
+                    panel.contentView = contentView
+                    
+                    panel.orderFront(nil)
+                    
+                    self?.overlayItems[overlayItemIndex].suggestionWindow = panel
+                    self?.isSuggestionVisible = true
+                } else {
+                    print("Filed to retrieve note")
+                }
             }
         })
     }
@@ -335,7 +363,41 @@ class OverlayController: ObservableObject {
     
     // ------------------------ FETCH FUNCTIONS --------------------------
     
-    private func fetchNote(for word: String, completionHandler: @escaping (Note?) -> Void) {
+    private func initializeIndex(completionHandler: @escaping (String?) -> Void) {
+        guard let url = URL(string: "http://127.0.0.1:5000/initialize") else {
+            completionHandler(nil)
+            return
+        }
+        
+        var req = URLRequest(url: url)
+        req.httpMethod = "POST"
+        req.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        URLSession.shared.dataTask(with: req) { data, response, error in
+            if let error = error {
+                completionHandler(nil)
+                return
+            }
+            
+            guard let data = data else {
+                completionHandler(nil)
+                return
+            }
+            
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                   let message = json["message"] as? String {
+                    completionHandler(message)
+                } else {
+                    completionHandler(nil)
+                }
+            } catch {
+                completionHandler(nil)
+            }
+        }.resume()
+    }
+    
+    private func fetchNote(for word: String, completionHandler: @escaping ([Note]?) -> Void) {
         guard let url = URL(string: "http://127.0.0.1:5000/get_note") else {
             print("Failed to get url")
             completionHandler(nil)
@@ -364,15 +426,13 @@ class OverlayController: ObservableObject {
                 return
             }
             
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("Raw response: \(jsonString)")
+            }
+            
             do {
-                let jsonResult = try JSONSerialization.jsonObject(with: data, options: []) as? [String: String]
-                if let title = jsonResult?["title"], let content = jsonResult?["content"] {
-                    let note = Note(title: title, content: content)
-                    completionHandler(note)
-                } else {
-                    print("Failed to extract title and content from JSON")
-                    completionHandler(nil)
-                }
+                let notes = try JSONDecoder().decode([Note].self, from: data)
+                completionHandler(notes)
             } catch {
                 print("Failed to decode response: \(error.localizedDescription)")
                 completionHandler(nil)
@@ -380,24 +440,58 @@ class OverlayController: ObservableObject {
         }.resume()
     }
     
-    private func checkWordWithServer(word: String, completion: @escaping (Bool) -> Void) {
+    func fetchAllNotes(completionHandler: @escaping ([Note]) -> Void) {
         
-        let parameters: [String: String] = ["word": word]
+        print("Fetching all notes...")
+        
+        guard let url = URL(string: "http://127.0.0.1:5000/api/notes") else {
+            print("Failed to get url")
+            return
+        }
+        
+        URLSession.shared.dataTaskPublisher(for: url)
+            .map { $0.data }
+            .decode(type: [Note].self, decoder: JSONDecoder())
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case .finished:
+                    break
+                case .failure(let error):
+                    print("Error fetching notes: \(error.localizedDescription)")
+                }
+            }, receiveValue: { notes in
+                completionHandler(notes)
+            })
+            .store(in: &cancellables)
+    }
+    
+    private func checkWordsWithServer(words: [String], completion: @escaping ([String: [Note]]?) -> Void) {
+        
+        let cleanedWords = words.map { word in
+            word.lowercased()
+                .components(separatedBy: CharacterSet.punctuationCharacters)
+                .joined()
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        
+        let parameters: [String: [String]] = ["words": cleanedWords]
         let url = "http://127.0.0.1:5000/check_word"
         
         AF.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default)
-            .responseJSON { response in
+            .responseData { response in
                 switch response.result {
-                case .success(let value):
-                    if let json = value as? [String: Any],
-                       let isRelevant = json["is_relevant"] as? Bool {
-                        completion(isRelevant)
-                    } else {
-                        completion(false)
+                case .success(let data):
+                    do {
+                        let result = try JSONDecoder().decode([String: [Note]].self, from: data)
+                        completion(result)
+                    } catch {
+                        print("Failed to decode JSON: \(error)")
+                        completion(nil)
                     }
                 case .failure(let error):
-                    print("Error checking word: \(error)")
-                    completion(false)
+                    print("Error checking words: \(error)")
+                    completion(nil)
                 }
             }
     }
