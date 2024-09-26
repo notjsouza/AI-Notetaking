@@ -3,6 +3,11 @@ from importlib.metadata import metadata
 
 from flask import Flask, jsonify, request
 
+import nltk
+nltk.download('punkt_tab')
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+
 from llama_index.core import VectorStoreIndex, Document, Settings
 
 from pymongo import MongoClient
@@ -13,8 +18,6 @@ from openai import OpenAI
 from dotenv import load_dotenv
 
 from typing import List
-
-import os
 
 app = Flask(__name__)
 
@@ -30,6 +33,12 @@ client = OpenAI()
 clientDB = MongoClient(uri, server_api=ServerApi('1'))
 db = clientDB[DATABASE_NAME]
 collection = db[COLLECTION_NAME]
+
+try:
+    clientDB.admin.command('ping')
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
 
 @app.route('/initialize', methods=['POST'])
 def initialize_index():
@@ -47,7 +56,7 @@ def initialize_index():
                     text="Title: " + title + "\nContent: " + content,
                     metadata={
                         "title": title,
-                        "content": content
+                        "content": content,
                     }
                 )
             )
@@ -72,7 +81,7 @@ def search():
     retriever = index.as_retriever(similarity_top_k=10)
     related_nodes: List[Document] = retriever.retrieve(query)
 
-    similarity_threshold = 0.7
+    similarity_threshold = 0.75
 
     related_notes = []
     for node in related_nodes:
@@ -89,44 +98,29 @@ def search():
 
 # ---------------------------------------------------------------------------
 
-# Function to extract keywords from text contents through a GPT call
-def extract_keywords(text):
-    try:
-        response = client.chat.completions.create(model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant that extracts keywords from text."},
-            {"role": "user", "content": f"Extract the main keywords from the following text: {text}"}
-        ],
-        max_tokens=100)
+@app.route('/filter_text', methods=['POST'])
+def filter_text():
+    data = request.json
+    if not data or 'text' not in data:
+        return jsonify({"error": "No text provided"}), 400
 
-        keywords = response.choices[0].message.content.strip()
-        return keywords
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return []
+    text = data['text']
+    stop_words = set(stopwords.words('english'))
+    word_tokens = word_tokenize(text)
 
-# Returns all notes from the MongoDB database
-@app.route('/api/notes', methods=['GET'])
-def get_all_notes():
-    cursor = collection.find()
+    filtered_words = []
+    seen = set()
 
-    # Convert MongoDB ObjectId to string and prepare the notes for JSON response
-    notes = []
-    for note in cursor:
-        note['_id'] = str(note['_id'])  # Convert ObjectId to string
-        notes.append({
-            'id': note['_id'],  # Use '_id' as the UUID string in Swift
-            'title': note['title'],
-            'content': note['content'],
-            'keywords': note['keywords']
-        })
+    for word in word_tokens:
+        word_lower = word.lower()
+        if (word_lower not in stop_words and
+            word.isalnum() and
+            not word.isdigit() and
+            word_lower not in seen):
+            filtered_words.append(word)
+            seen.add(word_lower)
 
-    return jsonify(notes)
-
-@app.route('/get_notes', methods=['GET'])
-def get_notes():
-    notes = list(collection.find())
-    return jsonify(notes)
+    return jsonify(filtered_words)
 
 if __name__ == '__main__':
     app.run(debug=True)

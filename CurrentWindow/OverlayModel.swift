@@ -19,13 +19,11 @@ struct Note: Codable, Identifiable, Hashable {
     let id: String
     var title: String
     var content: String
-    var keywords: [String]
     
-    init(id: String, title: String, content: String, keywords: [String]) {
+    init(id: String = UUID().uuidString, title: String, content: String) {
         self.id = id
         self.title = title
         self.content = content
-        self.keywords = keywords
     }
     
     func hash(into hasher: inout Hasher) {
