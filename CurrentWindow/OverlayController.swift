@@ -5,6 +5,19 @@
 //  Created by Justin Souza on 8/25/24.
 //
 
+
+
+/*
+ 
+ Only issue I wasn't able to solve: 
+ 
+ The overlay doesn't properly update on changes. Two things that could fix this are either
+ 
+    1. Updating the contents on a timer
+    2. Checking the observers in the AppDelegate to make sure they're calling updates properly
+  
+ */
+
 import SwiftUI
 import Combine
 import Alamofire
@@ -32,6 +45,7 @@ class OverlayController: ObservableObject {
     
     // ------------------------ INITIALIZERS --------------------------------
     
+    // Using this function to create a small delay before deleting the suggestion window
     private func setupStateManagement() {
         
         Publishers.CombineLatest($isWordHovered, $isSuggestionHovered)
@@ -44,6 +58,7 @@ class OverlayController: ObservableObject {
             .store(in: &cancellables)
     }
     
+    // Creates the delay, then calls the Flask server to initialize the index
     func start() {
         
         Task { @MainActor in
@@ -62,6 +77,7 @@ class OverlayController: ObservableObject {
         }
     }
     
+    // Recurring call to find the active application, then retrieves all the elements on the page
     func runApp() {
         
         guard let app = getActiveWindow() else { return }
@@ -71,6 +87,8 @@ class OverlayController: ObservableObject {
     }
     
     // ------------------------ ELEMENT PROPERTIES ------------------------
+    
+    // Finds the active application, then returns the window property as a AXUIElement
     func getActiveWindow() -> AXUIElement? {
         
         guard let app = NSWorkspace.shared.frontmostApplication else { return nil }
@@ -85,6 +103,7 @@ class OverlayController: ObservableObject {
         return window
     }
     
+    // Finds the active window, then finds all the child elements of the window
     private func getAllElements(element: AXUIElement) {
         
         let windowFrame = getWindowFrame(element: element)
@@ -93,6 +112,7 @@ class OverlayController: ObservableObject {
         findChildren(element: element, frame: windowFrame)
     }
     
+    // Finds the bounds of the window, returns as an optional CGRect
     private func getWindowFrame(element: AXUIElement) -> CGRect? {
         
         var roleRef: CFTypeRef?
@@ -116,6 +136,8 @@ class OverlayController: ObservableObject {
         return windowFrame
     }
     
+    // Recursive function to go thorugh all the elements, creates an overlay window if the role of the element is a textfield and
+    // if the element falls within the visible bounds
     private func findChildren(element: AXUIElement, frame: CGRect) {
         
         var roleRef: CFTypeRef?
@@ -184,7 +206,9 @@ class OverlayController: ObservableObject {
     
     // ------------------------ OVERLAY CREATORS ------------------------
     
-    
+    // Deletes any existing overlay items before creating new ones
+    // Sends text contents to be cleaned, loops through each of them to see if any return notes
+    // Any words that return a note are used to create an overlay item
     private func createOverlay(element: AXUIElement) {
         
         Task { @MainActor in
@@ -265,6 +289,7 @@ class OverlayController: ObservableObject {
         }
     }
     
+    // Creates an underline/highlight effect around a relevant word
     private func createOverlayWindows(for word: String, bounds: CGRect) {
         
         if overlayItems.contains(where: { $0.wordBounds == bounds && $0.word == word}) {
@@ -369,6 +394,7 @@ class OverlayController: ObservableObject {
     
     // ------------------------ FETCH FUNCTIONS --------------------------
     
+    // POST request to initialize the index in the Flask server
     private func initializeIndex() async throws -> String? {
         
         guard let url = URL(string: "http://127.0.0.1:5000/initialize") else { return nil}
@@ -385,6 +411,7 @@ class OverlayController: ObservableObject {
         return nil
     }
     
+    // POST request to send the text contents to the Flask server, filters out all duplicates and stopwords
     private func checkTextWithServer(words: String) async throws -> [String] {
         
         let parameters: [String: String] = ["text": words]
@@ -396,6 +423,7 @@ class OverlayController: ObservableObject {
         return res
     }
     
+    // POST request to return the notes relevant to the given keyword
     private func searchNotes(for word: String) async throws -> [Note] {
         
         guard let url = URL(string: "http://127.0.0.1:5000/search") else {

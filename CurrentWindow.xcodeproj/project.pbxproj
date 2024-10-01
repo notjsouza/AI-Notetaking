@@ -16,7 +16,7 @@
 		D049F5FB2C3D36BD0088DE3F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F5FA2C3D36BD0088DE3F /* AppDelegate.swift */; };
 		D049F62D2C76E8970088DE3F /* OverlayModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D049F62C2C76E8970088DE3F /* OverlayModel.swift */; };
 		D095F18A2C81CA0000C6D8BF /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = D095F1892C81CA0000C6D8BF /* Alamofire */; };
-		D0FBDA3F2C7C3A2E002C5A76 /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FBDA3E2C7C3A2E002C5A76 /* OverlayView.swift */; };
+		D09B65EE2CA80C9E001C69FC /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D09B65ED2CA80C9E001C69FC /* OverlayView.swift */; };
 		D0FBDA412C7C3AB1002C5A76 /* OverlayController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FBDA402C7C3AB1002C5A76 /* OverlayController.swift */; };
 /* End PBXBuildFile section */
 
@@ -51,7 +51,7 @@
 		D049F5FA2C3D36BD0088DE3F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D049F5FC2C3DAE340088DE3F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D049F62C2C76E8970088DE3F /* OverlayModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayModel.swift; sourceTree = "<group>"; };
-		D0FBDA3E2C7C3A2E002C5A76 /* OverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OverlayView.swift; path = ../OverlayView.swift; sourceTree = "<group>"; };
+		D09B65ED2CA80C9E001C69FC /* OverlayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OverlayView.swift; sourceTree = "<group>"; };
 		D0FBDA402C7C3AB1002C5A76 /* OverlayController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -111,7 +111,7 @@
 				D049F5D52C3D36770088DE3F /* Preview Content */,
 				D049F5FA2C3D36BD0088DE3F /* AppDelegate.swift */,
 				D049F62C2C76E8970088DE3F /* OverlayModel.swift */,
-				D0FBDA3E2C7C3A2E002C5A76 /* OverlayView.swift */,
+				D09B65ED2CA80C9E001C69FC /* OverlayView.swift */,
 				D0FBDA402C7C3AB1002C5A76 /* OverlayController.swift */,
 			);
 			path = CurrentWindow;
@@ -280,7 +280,7 @@
 			files = (
 				D049F62D2C76E8970088DE3F /* OverlayModel.swift in Sources */,
 				D0FBDA412C7C3AB1002C5A76 /* OverlayController.swift in Sources */,
-				D0FBDA3F2C7C3A2E002C5A76 /* OverlayView.swift in Sources */,
+				D09B65EE2CA80C9E001C69FC /* OverlayView.swift in Sources */,
 				D049F5FB2C3D36BD0088DE3F /* AppDelegate.swift in Sources */,
 				D049F5D02C3D36750088DE3F /* CurrentWindowApp.swift in Sources */,
 			);
