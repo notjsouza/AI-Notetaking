@@ -16,25 +16,27 @@ struct WordOverlayView: View {
     let frame: CGRect
 
     var body: some View {
-        VStack {
+        ZStack(alignment: .bottom) {
+            // Invisible text for hover detection
             Text(word)
-                .background(isHovered ? Color.green.opacity(0.25) : Color.clear)
                 .foregroundColor(Color.clear)
                 .font(.system(size: 14))
+                .frame(width: frame.width, height: frame.height)
+                .background(isHovered ? Color.green.opacity(0.25) : Color.clear)
                 .onHover { hovering in
                     withAnimation(.easeInOut(duration: 0.1)) {
                         isHovered = hovering
                         controller.setWordHovered(word: word, hovering: hovering, frame: frame)
                     }
                 }
-                .offset(y: frame.height)
-            .frame(width: frame.width, height: frame.height)
             
+            // Underline at bottom
             Rectangle()
                 .fill(Color.green.opacity(1))
-                .frame(width: frame.width, height: frame.height * 0.5)
-                .offset(y: frame.height * 0.4)
+                .frame(width: frame.width, height: 2)
+                .offset(y: 1)
         }
+        .frame(width: frame.width, height: frame.height)
     }
 }
 
@@ -54,6 +56,7 @@ struct SuggestionView: View {
             
             ForEach(Array(suggestions.enumerated()), id: \.offset) { index, suggestion in
                 Button(action: {
+                    print("🟡 Button clicked for note: \(suggestion.title)")
                     controller.setNoteSelected(note: suggestion)
                 }) {
                     Text(suggestion.title)

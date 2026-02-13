@@ -8,5 +8,10 @@
 __pycache__/
 *.pyc
 
+# Index storage (LlamaIndex persistence)
+FlaskServer/storage/
+
 # macOS system files
-.DS_Store
+.DS_Store.DS_Store
+*.xcuserstate
+xcuserdata/

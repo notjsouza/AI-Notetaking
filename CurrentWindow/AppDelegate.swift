@@ -149,6 +149,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 return
             }
             
+            // Define notification helper first
+            let refcon = UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
+            let addNotification = { (element: AXUIElement, notification: CFString) in
+                let error = AXObserverAddNotification(observer, element, notification, refcon)
+                if error != .success {
+                    print("Failed to add notification: \(notification)")
+                }
+            }
+            
             var focusedElementRef: CFTypeRef?
             let elementError = AXUIElementCopyAttributeValue(
                 appElement,
@@ -159,17 +168,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             guard elementError == .success,
                   let focusedElementRef = focusedElementRef,
                   let focusedElement = focusedElementRef as! AXUIElement? else {
-                print("Failed to get focused element")
+                // Still set up window observers even without focused element
+                addNotification(focusedWindow, kAXWindowMovedNotification as CFString)
+                addNotification(focusedWindow, kAXWindowResizedNotification as CFString)
+                CFRunLoopAddSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(observer), .defaultMode)
                 return
-            }
-            
-            let refcon = UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
-            
-            let addNotification = { (element: AXUIElement, notification: CFString) in
-                let error = AXObserverAddNotification(observer, element, notification, refcon)
-                if error != .success {
-                    print("Failed to add notification: \(notification)")
-                }
             }
             
             addNotification(focusedElement, kAXFocusedUIElementChangedNotification as CFString)
@@ -183,6 +186,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
     private func handleNotification(element: AXUIElement, notification: CFString) {
         
+        let notificationName = notification as String
+        
+        // For window move/resize, trigger immediate refresh (don't delete)
+        if notificationName == kAXWindowMovedNotification as String ||
+           notificationName == kAXWindowResizedNotification as String {
+            
+            // Window moved/resized - instant refresh
+            controller.triggerImmediateRefresh()
+            return
+        }
+        
+        // For other changes (text/focus), delete and recreate
         controller.deleteAll()
 
         runAppTimer?.invalidate()
