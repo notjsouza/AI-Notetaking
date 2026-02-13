@@ -56,7 +56,7 @@ struct SuggestionView: View {
             
             ForEach(Array(suggestions.enumerated()), id: \.offset) { index, suggestion in
                 Button(action: {
-                    print("🟡 Button clicked for note: \(suggestion.title)")
+                    print("Button clicked for note: \(suggestion.title)")
                     controller.setNoteSelected(note: suggestion)
                 }) {
                     Text(suggestion.title)

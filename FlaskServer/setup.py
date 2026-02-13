@@ -29,16 +29,16 @@ def setup_nltk():
         print("\nSSL CERTIFICATE ERROR DETECTED")
         print("\nThis is a common macOS issue. Try one of these fixes:")
         print("\n1. Install Python SSL certificates (RECOMMENDED):")
-        print("   Run this command from your Python installation:")
+        print("Run this command from your Python installation:")
         import sys
         cert_path = f"/Applications/Python {sys.version_info.major}.{sys.version_info.minor}/Install Certificates.command"
-        print(f"   {cert_path}")
-        print("   OR run:")
-        print(f"   open '{cert_path}'")
+        print(f"{cert_path}")
+        print("OR run:")
+        print(f"open '{cert_path}'")
         print("\n2. Use pip to install certifi:")
-        print("   pip install --upgrade certifi")
+        print("pip install --upgrade certifi")
         print("\n3. Manual download:")
-        print("   python -m nltk.downloader -d ~/nltk_data punkt_tab stopwords")
+        print("python -m nltk.downloader -d ~/nltk_data punkt_tab stopwords")
         print("\nAfter fixing, run this setup script again.")
         return False
     

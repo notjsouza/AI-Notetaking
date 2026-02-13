@@ -138,20 +138,20 @@ class OverlayManager {
     
     /// Open a note in the Notes app
     func openNoteInApp(noteId: String) {
-        print("🟢 Opening note with ID: \(noteId)")
+        print("Opening note with ID: \(noteId)")
         
         // Try the simple URL format first
         let urlString = "notes://showNote?identifier=\(noteId)"
         
         guard let url = URL(string: urlString) else {
-            print("❌ Failed to create Notes URL")
+            print("Failed to create Notes URL")
             return
         }
         
         // Use synchronous open - more reliable
         DispatchQueue.main.async {
             let success = NSWorkspace.shared.open(url)
-            print(success ? "✅ URL opened successfully" : "❌ URL open failed")
+            print(success ? "URL opened successfully" : "URL open failed")
         }
     }
 }

@@ -30,9 +30,9 @@ search_service = SearchService(index_storage_path=INDEX_STORAGE_PATH)
 notes_reader = None
 try:
     notes_reader = AppleNotesReader(db_path=NOTES_DB_PATH)
-    print("✅ Apple Notes reader initialized successfully!")
+    print("Apple Notes reader initialized successfully!")
 except Exception as e:
-    print(f"⚠️  Could not initialize Apple Notes reader: {e}")
+    print(f"Could not initialize Apple Notes reader: {e}")
     print("The server will start, but /initialize will fail until Notes access is granted.")
 
 # Register all API routes
@@ -40,13 +40,13 @@ register_routes(app, search_service, notes_reader, query_cache)
 
 if __name__ == '__main__':
     print("\n" + "="*60)
-    print("🚀 Smart Notes Overlay Server Starting")
+    print("Overlay Server Starting")
     print("="*60)
-    print(f"📁 Index storage path: {INDEX_STORAGE_PATH}")
+    print(f"Index storage path: {INDEX_STORAGE_PATH}")
     if notes_reader:
-        print(f"📓 Apple Notes reader: Ready")
+        print(f"Apple Notes reader: Ready")
     else:
-        print(f"⚠️  Apple Notes reader: Not initialized")
+        print(f"Apple Notes reader: Not initialized")
     print("="*60 + "\n")
     
     app.run(debug=True, port=5000)

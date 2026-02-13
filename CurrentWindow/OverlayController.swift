@@ -117,7 +117,7 @@ class OverlayController: ObservableObject {
     }
     
     func setNoteSelected(note: Note) {
-        print("🔵 Note selected: \(note.title)")
+        print("Note selected: \(note.title)")
         overlayManager.openNoteInApp(noteId: note.id)
         overlayManager.deleteAllSuggestionOverlays()
     }

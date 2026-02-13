@@ -201,13 +201,13 @@ def test_reader():
         # Show first few notes
         for i, note in enumerate(notes[:5], 1):
             print(f"{i}. {note.title}")
-            print(f"   Folder: {note.folder}")
-            print(f"   Content preview: {note.content[:100]}...")
+            print(f"Folder: {note.folder}")
+            print(f"Content preview: {note.content[:100]}...")
             print()
         
         return True
     except Exception as e:
-        print(f"\n✗ Error: {e}\n")
+        print(f"\nError: {e}\n")
         return False
 
 
